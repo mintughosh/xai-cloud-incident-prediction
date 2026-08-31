@@ -1,0 +1,12 @@
+{
+  "folders": [
+    { "path": "." }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${env:CONDA_PREFIX}/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "editor.rulers": [79],
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000
+  }
+}
