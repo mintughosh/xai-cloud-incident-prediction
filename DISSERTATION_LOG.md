@@ -711,3 +711,47 @@ narrows considerably.
 - `src/11_hyperparameter_sensitivity.py`
 - `results/hyperparameter_sensitivity.csv`
 - `results/figures/hyperparameter_heatmap.png`
+
+### Day 14 — 18 August 2026
+
+**Objective:** Experimental Results Inventory and 
+Validation Checklist Generation
+
+**Completed:**
+- [x] Implemented `12_results_inventory.py` to index, 
+  inspect, and audit all quantitative deliverables 
+  and figure assets across results/ and 
+  results/figures/
+- [x] Generated `logs/results_inventory.txt` containing 
+  byte sizes, schema column definitions, row counts, 
+  and 3-row previews for all top-level CSV files
+- [x] Created `logs/results_checklist.txt` to execute 
+  automated assertion checks against 15 required 
+  deliverable artifacts across RQ1, RQ2, RQ3, and 
+  ablation experiments
+- [x] Verified 100% completion — 15/15 files PRESENT 
+  with zero missing or corrupted result files
+
+**Verified Deliverable Coverage:**
+
+| Category | Verified Artifacts | Status |
+|----------|-------------------|--------|
+| RQ1 — Baselines and Drift | model_results.csv, temporal_drift_bgl.csv, hyperparameter_sensitivity.csv, ablation_window_size.csv | PRESENT |
+| RQ2 — Fidelity and Agreement | shap_lime_spearman.csv, faithfulness_HDFS.csv, faithfulness_BGL.csv, shap_stability_window.csv, feature and LIME rankings | PRESENT |
+| RQ3 — Actionability | rq3_actionability_HDFS.csv, rq3_actionability_BGL.csv, rq3_coverage.csv | PRESENT |
+
+**Key finding today:**
+All 15 of 15 expected result files confirmed present 
+and inspected. Zero missing or corrupted files.
+
+**My observation:**
+With all empirical outputs, visual assets, and 
+diagnostic logs verified, the experimental phase of 
+the project is complete. All results required to 
+write the formal Results and Discussion chapters are 
+locked. The next phase is dissertation writing.
+
+**Files produced today:**
+- `src/12_results_inventory.py`
+- `logs/results_inventory.txt`
+- `logs/results_checklist.txt`

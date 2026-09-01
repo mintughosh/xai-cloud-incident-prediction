@@ -1,0 +1,20 @@
+Results Validation Checklist
+============================================================
+
+[PRESENT] results/model_results.csv
+[PRESENT] results/shap_lime_spearman.csv
+[PRESENT] results/faithfulness_HDFS.csv
+[PRESENT] results/faithfulness_BGL.csv
+[PRESENT] results/rq3_actionability_HDFS.csv
+[PRESENT] results/rq3_actionability_BGL.csv
+[PRESENT] results/rq3_coverage.csv
+[PRESENT] results/ablation_window_size.csv
+[PRESENT] results/temporal_drift_bgl.csv
+[PRESENT] results/hyperparameter_sensitivity.csv
+[PRESENT] results/shap_stability_window.csv
+[PRESENT] results/feature_ranking_HDFS.csv
+[PRESENT] results/feature_ranking_BGL.csv
+[PRESENT] results/lime_ranking_HDFS.csv
+[PRESENT] results/lime_ranking_BGL.csv
+
+Summary: 15/15 expected files present
