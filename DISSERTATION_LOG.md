@@ -471,3 +471,80 @@ configurations.
 - `results/ablation_window_size.csv`
 - `results/figures/ablation_window_size.png`
 - `src/08_ablation_window_size.py`
+
+### Day 11 — 15 August 2026
+
+**Objective:** BGL SHAP Feature Stability Across 
+Session Window Sizes
+
+**Completed:**
+- [x] Refactored shared windowing and data pipeline 
+  logic into `utils_bgl_windows.py` to prevent logic 
+  drift between the ablation script and SHAP analysis
+- [x] Retrained and persisted Random Forest model 
+  artifacts for window sizes 10, 20, and 40 
+  (BGL_RandomForest_w10.pkl, w20.pkl, w40.pkl), 
+  aligning with existing ws=100 baseline artifact
+- [x] Evaluated SHAP TreeExplainer on a 200-instance 
+  stratified test sample for each window size to 
+  extract top-10 feature rankings
+- [x] Computed pairwise Jaccard similarity across all 
+  window size combinations and exported to 
+  results/shap_stability_window.csv
+
+**SHAP Stability Results:**
+
+| Window Pair | Jaccard Similarity | Common Features |
+|-------------|-------------------|-----------------|
+| 10 vs 20 | 0.250 (25.0%) | E3, E18, E55, E230 |
+| 10 vs 40 | 0.176 (17.6%) | E3, E230, E466 |
+| 10 vs 100 | 0.176 (17.6%) | E3, E18, E230 |
+| 20 vs 40 | 0.176 (17.6%) | E1, E3, E230 |
+| 20 vs 100 | 0.333 (33.3%) | E3, E6, E18, E230, E473 |
+| 40 vs 100 | 0.176 (17.6%) | E3, E230, E280 |
+
+**Key finding today:**
+Top-10 SHAP feature rankings display clear instability 
+when the underlying session window size changes. 
+Pairwise Jaccard similarity ranged between 0.176 
+(17.6% overlap) and 0.333 (33.3% overlap) across all 
+window size pairs (ws = 10, 20, 40, 100).
+
+Out of 987 potential log event templates, only two 
+features appeared in the common features column of 
+every single window pair: E3 (core-dump indicator 
+generating core.<NUM>) and E230 (data storage 
+interrupts). Every other top-10 feature shifted 
+depending on window duration, as changing window size 
+directly alters the event co-occurrence density fed 
+to the model.
+
+The highest agreement was between ws=20 and ws=100 
+(Jaccard=0.333, 5 common features: E3, E6, E18, E230, 
+E473). The lowest agreement appeared across four pairs 
+at Jaccard=0.176. No pair exceeded 33.3% overlap, 
+meaning the majority of top-10 SHAP features are 
+window-size-dependent rather than stable signals.
+
+**My observation:**
+Refactoring into utils_bgl_windows.py kept the pipeline 
+clean and prevented logic drift between scripts. 
+Generating sparse float32 matrices directly from 
+line-by-line template mappings allowed fast model 
+retraining without re-running Drain3.
+
+These results add a critical dimension to RQ2. Beyond 
+known explainer-level discrepancies such as SHAP versus 
+LIME disagreement, feature importance rankings are also 
+sensitive to arbitrary data aggregation choices made 
+upstream. Session length directly shapes feature 
+attribution, proving that XAI outputs cannot be 
+interpreted without accounting for windowing parameters.
+
+**Files produced today:**
+- `src/09_shap_stability_window.py`
+- `src/utils_bgl_windows.py`
+- `results/shap_stability_window.csv`
+- `results/models/BGL_RandomForest_w10.pkl`
+- `results/models/BGL_RandomForest_w20.pkl`
+- `results/models/BGL_RandomForest_w40.pkl`
