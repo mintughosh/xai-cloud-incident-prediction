@@ -159,3 +159,29 @@ my decision to enforce strict chronological splitting.
 
 ---
 
+### Day 3 — 07 August 2026
+
+**Objective:** XAI Pipeline Generation (SHAP and LIME)
+
+**Completed:**
+- [x] SHAP TreeExplainer integrated for HDFS (LightGBM) and BGL (Random Forest)
+- [x] LIME TabularExplainer integrated for both datasets
+- [x] Exported feature importance matrices for top 100 true positive instances
+- [x] Fixed SHAP additivity failure on BGL RF — disabled strict check (documented workaround)
+- [x] Fixed OpenStack pathological SHAP (E3 magnitude 10,632) — regularised model
+
+**Key finding today:**
+Generating exact Shapley values for BGL's massive feature space
+is computationally intensive. LIME is faster but its synthetic
+perturbations do not always make logical sense in the context of
+discrete log event counts. This is a limitation of LIME on sparse
+count data that will be documented in Chapter 5 Discussion.
+
+**My observation:**
+I am seeing a stark contrast in how these two explainers handle
+the data. For HDFS they point to the same key log lines. For BGL
+they are wildly diverging. I need to run a formal Spearman
+correlation tomorrow to quantify this disagreement.
+
+---
+
