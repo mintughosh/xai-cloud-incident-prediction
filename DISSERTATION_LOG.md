@@ -282,3 +282,32 @@ needs.
 
 ---
 
+### Day 8 — 12 August 2026
+
+**Objective:** Finalise Results and Project Synthesis
+
+**Completed:**
+- [x] Consolidated all result tables for RQ1 and RQ2
+- [x] Exported final SHAP and LIME visualisation plots for dissertation appendix
+- [x] Backed up 01_preprocess_bgl.py and utils_data.py to GitHub
+
+**Key finding today:**
+The pipeline is fully reproducible from raw log files to final
+xai_agreement_metrics.csv. The chronological splitting logic and
+Drain3 masking configurations are robust and documented.
+
+**My observation:**
+This project evolved from a standard classification task into a
+critique of how academic ML often ignores real-world infrastructure
+constraints. Proving that XAI agreement degrades in
+high-dimensional log spaces and demonstrating concept drift via
+chronological splits are strong, defensible core arguments for the
+dissertation. Ready to begin Chapter 3 Methodology writing.
+
+---
+
+### Day 9 — [date when done]
+
+**Objective:** RQ3 Actionability Analysis
+
+[Fill this in after running the RQ3 prompt]
