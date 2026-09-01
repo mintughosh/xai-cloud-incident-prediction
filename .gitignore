@@ -1,0 +1,29 @@
+# Large data files
+data/raw/
+data/processed/
+
+# Large model and numpy files
+results/models/
+results/shap_values/
+*.pkl
+*.npy
+*.npz
+
+# Python cache
+src/__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# Conda
+*.conda
+src/__pycache__/
+*.pyc
+results/models/
+results/shap_values/
+data/
