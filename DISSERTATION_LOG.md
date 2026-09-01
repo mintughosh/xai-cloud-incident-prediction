@@ -209,3 +209,27 @@ for RQ2.
 
 ---
 
+### Day 5 — 09 August 2026
+
+**Objective:** Deep Dive into BGL Concept Drift (RQ1 Follow-up)
+
+**Completed:**
+- [x] Visualised feature importance over time using SHAP summary plots for BGL
+- [x] Mapped specific log templates that triggered false negatives in test set
+
+**Key finding today:**
+Random Forest's high Precision (0.97) but low Recall (0.31) on
+BGL means that when it alerts it is right — but it misses almost
+70% of actual outages. The false negatives in the test set were
+driven by log templates that did not exist in the training window.
+
+**My observation:**
+You cannot train a supervised anomaly detection model to catch
+failure modes it has never seen. Traditional software fails
+predictably, but infrastructure fails in novel ways. In a real
+environment this model would cause dangerous alert fatigue — not
+because of false alarms, but because engineers would realise it
+was silently missing major incidents.
+
+---
+
