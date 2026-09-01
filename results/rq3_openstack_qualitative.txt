@@ -1,0 +1,41 @@
+RQ3 — OpenStack Qualitative Analysis (no quantitative actionability metrics)
+==============================================================================
+
+Anomalous instance UUIDs (4):
+  - 1643649d-2f42-4303-bfcd-7798baec19f9
+  - 544fd51c-4edc-4780-baae-ba1d80a0acfc
+  - a445709b-6ad0-40ec-8860-bec60b6ca0c2
+  - ae651dff-c7ad-43d6-ac96-bbcd820ccca8
+
+Event templates triggered by these instances, with assigned operational category:
+
+  E2 (occurs 20x): [instance: <UUID>] VM <*> (Lifecycle Event)
+      -> Category: Unknown
+  E26 (occurs 12x): [instance: <UUID>] Total <*> <NUM> <*> used: <NUM>.<NUM> <*>
+      -> Category: Unknown
+  E16 (occurs 12x): [instance: <UUID>] <*> <*>
+      -> Category: Unknown
+  E27 (occurs 8x): [instance: <UUID>] <*> limit not specified, defaulting to unlimited
+      -> Category: Unknown
+  E3 (occurs 8x): [instance: <UUID>] During sync_power_state the instance has a pending task <*> Skip.
+      -> Category: Unknown
+  E8 (occurs 8x): [instance: <UUID>] Instance <*> successfully.
+      -> Category: Unknown
+  E9 (occurs 8x): [instance: <UUID>] Took <NUM>.<NUM> seconds to <*> the instance on the hypervisor.
+      -> Category: Unknown
+  E24 (occurs 4x): [instance: <UUID>] Attempting claim: memory <NUM> MB, disk <NUM> GB, vcpus <NUM> CPU
+      -> Category: Unknown
+  E25 (occurs 4x): [instance: <UUID>] <*> <*> <*> MB, <*> <NUM>.<NUM> MB
+      -> Category: Unknown
+  E10 (occurs 4x): [instance: <UUID>] Took <NUM>.<NUM> seconds to build instance.
+      -> Category: Unknown
+  E17 (occurs 4x): [instance: <UUID>] Deleting instance files /var/lib/nova/instances/<UUID>_del
+      -> Category: Unknown
+  E18 (occurs 4x): [instance: <UUID>] Deletion of /var/lib/nova/instances/<UUID>_del complete
+      -> Category: Unknown
+  E19 (occurs 4x): [instance: <UUID>] Took <NUM>.<NUM> seconds to deallocate network for instance.
+      -> Category: Unknown
+
+Qualitative description:
+
+The 4 anomalous OpenStack instances trigger 13 distinct event templates over 100 log lines, and critically, none of the top-occurring templates are explicit error or failure messages — they are routine VM lifecycle operations (instance creation, resource claims, deletion, and network deallocation). All 100/100 lines fall into 'Unknown': not one of the 13 templates these instances triggered carries any failure-specific vocabulary. This indicates that, unlike HDFS and BGL where anomalies correspond to distinct error-type log events, OpenStack's injected anomalies in this dataset manifest as anomalous *timing or sequencing* of otherwise-normal lifecycle events rather than the presence of a distinctly anomalous log line, which independently explains why the event-count feature representation used for RQ1/RQ2 could not separate them (only 4 positives, near-zero F1 across all models) — the signal these templates carry is not really present at the per-template-occurrence level to begin with.

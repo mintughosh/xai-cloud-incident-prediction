@@ -1,0 +1,16 @@
+rank,event_id,template_text,mean_shap,category
+1,E23,[*]BLOCK* NameSystem[*]delete:[*]is added to invalidSet of[*],1.0851483128120498,Data integrity
+2,E3,[*]Served block[*]to[*],0.5902488305581135,Unknown
+3,E21,[*]Deleting block[*]file[*],0.589492316532917,Unknown
+4,E9,[*]Received block[*]of size[*]from[*],0.5463689399403604,Unknown
+5,E20,[*]Unexpected error trying to delete block[*]BlockInfo not found in volumeMap[*],0.5290761302084893,Application error
+6,E26,[*]BLOCK* NameSystem[*]addStoredBlock: blockMap updated:[*]is added to[*]size[*],0.2885600247631169,Unknown
+7,E27,[*]BLOCK* NameSystem[*]addStoredBlock: Redundant addStoredBlock request received for[*]on[*]size[*],0.2268547011368308,Data integrity
+8,E4,[*]Got exception while serving[*]to[*],0.1315500118823316,Application error
+9,E18,[*]Starting thread to transfer block[*]to[*],0.0946804348211343,Unknown
+10,E2,[*]Verification succeeded for[*],0.059745837593598,Data integrity
+11,E13,[*]Receiving empty packet for block[*],0.0248374143662869,Network fault
+12,E5,[*]Receiving block[*]src:[*]dest:[*],0.0224962022998288,Unknown
+13,E28,[*]BLOCK* NameSystem[*]addStoredBlock: addStoredBlock request received for[*]on[*]size[*]But it does not belong to any file[*],0.0205413304029039,Data integrity
+14,E7,[*]writeBlock[*]received exception[*],0.0204662207449908,Application error
+15,E6,[*]Received block[*]src:[*]dest:[*]of size[*],0.0075925276815994,Unknown

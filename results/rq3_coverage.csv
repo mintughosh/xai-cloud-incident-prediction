@@ -1,0 +1,3 @@
+dataset,total_features_checked,categorised,coverage_pct,dominant_category
+HDFS,15,8,53.33,Unknown
+BGL,15,14,93.33,Hardware failure
