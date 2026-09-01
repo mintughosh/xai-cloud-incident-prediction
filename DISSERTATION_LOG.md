@@ -233,3 +233,27 @@ was silently missing major incidents.
 
 ---
 
+### Day 6 — 10 August 2026
+
+**Objective:** Qualitative Analysis of OpenStack (RQ3 prep)
+
+**Completed:**
+- [x] Manually inspected the 4 anomalous instance UUIDs in OpenStack log files
+- [x] Mapped Drain3 templates back to raw human-readable logs for these 4 events
+
+**Key finding today:**
+Despite the model failing quantitatively on OpenStack, looking at
+the logs manually through the Drain3 parsed templates was
+insightful. The anomalies were distinct block-storage and network
+timeouts that stood out clearly once variable IPs and UUIDs were
+masked.
+
+**My observation:**
+If I had not properly masked the OpenStack logs, those 4 anomalies
+would have been buried in 3,983 disparate templates. Proper
+preprocessing is doing 80% of the heavy lifting. The specific
+template IDs for the block-storage and network timeout anomalies
+will be documented explicitly in Chapter 4 after RQ3 runs.
+
+---
+
