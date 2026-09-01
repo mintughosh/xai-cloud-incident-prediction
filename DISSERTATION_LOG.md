@@ -384,3 +384,90 @@ limitation of count-based log representations.
 - `src/06_rq3_actionability.py`
 - `src/07_rq3_openstack_qualitative.py`
 - `src/utils_rq3.py`
+
+
+### Day 10 — 14 August 2026
+
+**Objective:** BGL Session Window Size Ablation Study
+
+**Completed:**
+- [x] Implemented `08_ablation_window_size.py` to evaluate 
+  model sensitivity to BGL session window sizes 
+  (ws = 10, 20, 40, 100)
+- [x] Built sparse matrix generator using scipy.sparse.coo_matrix 
+  to aggregate 4.7 million log entries from BGL_structured.csv 
+  without re-running Drain3
+- [x] Fixed sparse data type mismatch bug — LightGBM rejected 
+  int32 sparse matrices during C++ buffer creation. 
+  Converted to float32 to resolve.
+- [x] Extracted test set metrics across all window sizes for 
+  RandomForest and LightGBM
+- [x] Generated results/figures/ablation_window_size.png 
+  and results/ablation_window_size.csv
+
+**Correction noted:**
+BGL baseline used window_size=100, not window_size=20 as 
+initially planned. All RQ1, RQ2, RQ3 results were built 
+with window_size=100. Ablation revised to test 
+ws = {10, 20, 40, 100} with existing baseline as anchor.
+
+**Ablation Results:**
+
+| Window Size | Model | Precision | Recall | F1 | AUC-ROC |
+|-------------|-------|-----------|--------|----|---------|
+| 10 | RandomForest | 0.998 | 0.196 | 0.328 | 0.757 |
+| 20 | RandomForest | 0.995 | 0.212 | 0.349 | 0.749 |
+| 40 | RandomForest | 0.963 | 0.238 | 0.382 | 0.761 |
+| 100 | RandomForest | 0.969 | 0.307 | 0.466 | 0.785 |
+| 10 | LightGBM | 0.941 | 0.202 | 0.333 | 0.756 |
+| 20 | LightGBM | 0.870 | 0.223 | 0.355 | 0.754 |
+| 40 | LightGBM | 0.144 | 0.902 | 0.248 | 0.757 |
+| 100 | LightGBM | 0.162 | 0.908 | 0.274 | 0.740 |
+
+**Key finding today:**
+window_size=100 is the most effective configuration for 
+RandomForest, not an arbitrary choice. As window size 
+decreases, RandomForest test F1 drops steadily from 
+0.466 at ws=100 down to 0.328 at ws=10. Smaller windows 
+cause severe recall degradation — dropping from 30.7% 
+at ws=100 to 19.6% at ws=10 — because brief windows 
+lack sufficient co-occurring log event context to trigger 
+anomaly signals.
+
+LightGBM exhibited a sharp regime shift between ws=20 
+and ws=40. At ws=10 and ws=20, LightGBM behaved like 
+RandomForest: high precision (0.941 and 0.870) with low 
+recall (0.202 and 0.223). At ws=40 and ws=100, it 
+switched abruptly to high recall (0.902 and 0.908) with 
+very low precision (0.144 and 0.162), collapsing F1 to 
+0.248 and 0.274. This regime shift is driven by how 
+scale_pos_weight interacts with gradient calculations 
+as the positive class ratio and feature density per 
+row both increase with larger windows.
+
+**My observation:**
+The contrast between RandomForest and LightGBM under 
+different window sizes is a key finding for the 
+dissertation. RandomForest scales predictably because 
+tree ensembles handle sparse count matrices gracefully 
+as window density grows. LightGBM's drastic shift at 
+ws=40 demonstrates that preprocessing choices like 
+windowing cannot be evaluated in isolation — their 
+impact depends heavily on the downstream classifier's 
+optimisation surface. This finding directly informs 
+the framework design recommendation in Chapter 5: 
+RandomForest is the safer choice for production 
+deployment on BGL-style sparse log data precisely 
+because its behaviour is predictable across window 
+configurations.
+
+**Error fixed today:**
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| LightGBM rejected sparse matrix | int32 dtype incompatible with C++ buffer creation | Converted sparse matrix to float32 before fitting |
+
+**Files produced today:**
+- `results/ablation_window_size.csv`
+- `results/figures/ablation_window_size.png`
+- `src/08_ablation_window_size.py`
