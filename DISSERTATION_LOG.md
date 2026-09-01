@@ -185,3 +185,27 @@ correlation tomorrow to quantify this disagreement.
 
 ---
 
+### Day 4 — 08 August 2026
+
+**Objective:** RQ2 Results — Feature Agreement Analysis
+
+**Results saved:** results/xai_agreement_metrics.csv
+
+**Key findings — my own interpretation:**
+
+HDFS: Strong SHAP-LIME agreement (Spearman r = 0.676)
+BGL: Barely any agreement (Spearman r = 0.113)
+
+**My personal observation:**
+This points directly to the curse of dimensionality affecting
+XAI reliability. HDFS is a dense, low-dimensional, stable
+feature space where LIME's local linear surrogate can reliably
+map the same decision boundary as SHAP. BGL is a massive, highly
+sparse feature space. LIME's random perturbations are landing in
+empty regions causing it to fit noise, while SHAP is dealing with
+sampling approximation variance. Feature space size directly
+dictates XAI reliability — this is a strong, defensible finding
+for RQ2.
+
+---
+
