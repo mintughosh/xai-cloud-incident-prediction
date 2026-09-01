@@ -96,3 +96,66 @@ methodological finding.
 
 ---
 
+### Day 2 — 06 August 2026
+
+**Objective:** Model training complete — RQ1 results obtained
+
+**Results saved:** results/model_results.csv
+
+**RQ1 Results Summary:**
+
+| Dataset | Model | Precision | Recall | F1 | AUC-ROC |
+|---------|-------|-----------|--------|----|---------|
+| HDFS | LR | 0.985 | 0.992 | 0.988 | 0.995 |
+| HDFS | RF | 0.998 | 0.999 | 0.999 | 0.999 |
+| HDFS | LightGBM | 0.999 | 0.999 | 0.999 | 0.999 |
+| BGL | LR | 0.812 | 0.450 | 0.578 | 0.840 |
+| BGL | RF | 0.970 | 0.310 | 0.470 | 0.895 |
+| BGL | LightGBM | 0.840 | 0.160 | 0.270 | 0.780 |
+| OpenStack | LR | 0.000 | 0.000 | 0.000 | 0.500 |
+| OpenStack | RF | 0.000 | 0.000 | 0.000 | 0.500 |
+| OpenStack | LightGBM | 0.000 | 0.000 | 0.000 | 0.500 |
+
+**Key findings — my own interpretation:**
+
+HDFS: All three models performed near-perfectly (F1 ~0.999). This
+tells me HDFS anomalies are strongly tied to specific log event
+templates — once the model learns those patterns the classification
+is almost trivial. This is consistent with what published papers
+report on this dataset. I explicitly dropped the Type column before
+training to prevent direct label leakage, ensuring this
+near-perfect score is legitimate.
+
+BGL: This was the most interesting result. LightGBM F1 dropped
+from 0.74 on validation to 0.27 on test. I confirmed that the
+Precision of 0.840 and Recall of 0.160 are purely from the test
+set. Random Forest generalised better on the test set (F1=0.47,
+Precision=0.97, Recall=0.31). The val-to-test drop is direct
+evidence that BGL failure patterns shift over time. A random split
+would have hidden this completely — the chronological split
+exposed it.
+
+OpenStack: Models essentially failed (F1 near 0). Expected given
+only 4 anomalous sessions. Reported as a documented dataset
+limitation, not a code error. OpenStack used for qualitative
+RQ3 analysis only.
+
+**Decisions made:**
+- Best model for HDFS: LightGBM
+- Best model for BGL: Random Forest — highest test Precision
+  (0.97) with best overall test F1 (0.47) despite low Recall
+  (0.31). High-precision alerts are more operationally
+  trustworthy than high-recall alerts with many false positives
+  in an SRE context.
+- OpenStack: excluded from RQ1/RQ2 quantitative evaluation
+
+**My personal observation:**
+The catastrophic drop in LightGBM performance on the BGL test
+set is the most valuable failure I have encountered so far. It
+perfectly illustrates why SREs do not trust static ML models —
+they memorise historical log structures but break entirely when
+the infrastructure drifts or fails in novel ways. It validates
+my decision to enforce strict chronological splitting.
+
+---
+
