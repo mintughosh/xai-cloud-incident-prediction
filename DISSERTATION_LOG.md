@@ -1,8 +1,11 @@
 # Dissertation Research Log
 
 **Candidate:** Mintu Ghosh
+
 **Title:** Explainable AI for Cloud Incident Prediction using OpenTelemetry
-**Programme:** MSc Machine Learning and Artificial Intelligence — LJMU
+
+**Programme:** MS - Machine Learning and Artificial Intelligence — LJMU
+
 **Start date:** 05 August 2026
 
 ---
@@ -548,3 +551,77 @@ interpreted without accounting for windowing parameters.
 - `results/models/BGL_RandomForest_w10.pkl`
 - `results/models/BGL_RandomForest_w20.pkl`
 - `results/models/BGL_RandomForest_w40.pkl`
+
+### Day 12 — 16 August 2026
+
+**Objective:** BGL Temporal Drift Analysis Within 
+the Test Set
+
+**Completed:**
+- [x] Implemented `10_temporal_drift_bgl.py` to 
+  evaluate concept drift by splitting BGL's 7,122 
+  chronological test windows into three equal 
+  sequential chunks (2,374 windows per chunk)
+- [x] Retrained and saved `results/models/BGL_LightGBM.pkl` 
+  (n_estimators=300, scale_pos_weight=8.86) to complete 
+  saved model artifacts alongside BGL_RandomForest.pkl
+- [x] Evaluated Precision, Recall, F1, AUC-ROC for 
+  both models across all three time chunks
+- [x] Generated results/figures/temporal_drift_bgl.png 
+  and exported results/temporal_drift_bgl.csv
+
+**Temporal Drift Results:**
+
+| Chunk | Period | Anomalies | RF F1 | RF AUC | LGB F1 | LGB AUC |
+|-------|--------|-----------|-------|--------|--------|---------|
+| 1 | Earliest | 279 | 0.563 | 0.945 | 0.542 | 0.920 |
+| 2 | Middle | 212 | 0.290 | 0.541 | 0.145 | 0.494 |
+| 3 | Latest | 311 | 0.489 | 0.767 | 0.291 | 0.696 |
+
+**Key finding today:**
+Temporal drift within the test period is non-monotonic. 
+Rather than a steady progressive decline, model 
+performance experiences a severe localised dip in the 
+middle chunk before partially recovering.
+
+Both models fall to near-random guessing in Chunk 2 — 
+RF AUC-ROC drops to 0.541 and LightGBM to 0.494, 
+which is essentially a coin flip. This is not caused 
+by fewer anomalies — Chunk 2 has 212 anomalies versus 
+279 in Chunk 1 and 311 in Chunk 3. The performance 
+collapse is driven entirely by pattern shift: the 
+middle test period contains transient failure modes 
+that were absent from training and did not persist 
+into Chunk 3 in the same form.
+
+RF Precision in Chunk 2 reaches 1.000 — every alert 
+it fires is correct — but Recall drops to 0.170, 
+meaning it only catches 17% of actual anomalies. 
+The model has not forgotten how to be precise; it 
+has simply stopped recognising the new failure 
+patterns as anomalies at all.
+
+**My observation:**
+This non-monotonic pattern is the strongest evidence 
+in the dissertation for the concept drift argument. 
+Concept drift in system logs is not the standard 
+model staleness problem where performance degrades 
+predictably as time passes. Instead, log streams 
+exhibit short-lived transient anomaly regimes that 
+completely blind static supervised models. An SRE 
+team relying on a static model would have experienced 
+a period of silent miss — the model alerting on 
+nothing while real incidents were occurring in the 
+middle of the test window.
+
+Plotting the anomaly distribution on the secondary 
+y-axis confirmed the pattern shift interpretation: 
+anomaly density did not drop in Chunk 2, the model 
+simply failed to recognise that period's failure 
+signatures.
+
+**Files produced today:**
+- `src/10_temporal_drift_bgl.py`
+- `results/temporal_drift_bgl.csv`
+- `results/figures/temporal_drift_bgl.png`
+- `results/models/BGL_LightGBM.pkl`
