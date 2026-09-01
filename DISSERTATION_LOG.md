@@ -257,3 +257,28 @@ will be documented explicitly in Chapter 4 after RQ3 runs.
 
 ---
 
+### Day 7 — 11 August 2026
+
+**Objective:** Operationalising the Framework (RQ3 — SRE Application)
+
+**Completed:**
+- [x] Defined degradation boundaries and fallback heuristics
+- [x] Drafted the operational framework architecture
+
+**Key finding today:**
+An ML model flagging a log anomaly is not an incident — it is a
+signal. The framework I am proposing requires a secondary
+validation layer before paging an engineer.
+
+**My observation:**
+If a team deployed this tomorrow, the first operational question
+they would need it to answer is: Is this log anomaly correlated
+with an actionable system metric degradation? Log anomalies happen
+during normal patch rollouts and batch jobs. If the framework
+cannot tie the log pattern to a degraded golden signal such as
+HTTP 5xx spikes or latency increases, it should not page an
+engineer. That is the secondary validation layer the framework
+needs.
+
+---
+
