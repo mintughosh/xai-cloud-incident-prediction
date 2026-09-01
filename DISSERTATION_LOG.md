@@ -306,8 +306,81 @@ dissertation. Ready to begin Chapter 3 Methodology writing.
 
 ---
 
-### Day 9 — [date when done]
+### Day 9 — 13 August 2026
 
-**Objective:** RQ3 Actionability Analysis
+**Objective:** RQ3 Actionability Analysis and OpenStack 
+Qualitative Deep-Dive
 
-[Fill this in after running the RQ3 prompt]
+**Completed:**
+- [x] Extracted the actual event templates triggered by the 
+  4 anomalous OpenStack instances directly from the 
+  structured CSV data
+- [x] Wrote `utils_rq3.py` to establish rule-based keyword 
+  matching, mapping Drain3 templates to operational failure 
+  categories (Data integrity, Resource exhaustion, Network 
+  fault, Hardware failure, Application error)
+- [x] Wrote and executed `06_rq3_actionability.py` to map 
+  the top 15 SHAP features for HDFS and BGL to these 
+  categories
+- [x] Expanded the categorisation rule set with legitimate 
+  BGL domain terms (TLB errors, ECC CE sym, torus link 
+  training, panics) after a poor initial matching run
+- [x] Wrote and executed `07_rq3_openstack_qualitative.py` 
+  to synthesise the OpenStack findings
+- [x] Patched a false-positive bug where the word "cpu" in 
+  a routine resource-claim log was incorrectly flagging as 
+  Hardware failure
+
+**RQ3 Results:**
+
+| Dataset | Features Checked | Categorised | Coverage | Dominant Category |
+|---------|-----------------|-------------|----------|-------------------|
+| HDFS | 15 | 8 | 53.33% | Unknown |
+| BGL | 15 | 14 | 93.33% | Hardware failure |
+| OpenStack | Qualitative only | N/A | N/A | Timing/sequence anomaly |
+
+**Key finding today:**
+I have concrete proof of why the ML models failed on OpenStack 
+in RQ1 (near-zero F1). The 4 anomalous OpenStack instances did 
+not trigger a single explicit error message. They only triggered 
+13 routine VM lifecycle operations — instance creation, resource 
+claims, deletion, network deallocation. The injected anomalies 
+manifest entirely as anomalous timing or sequencing of otherwise 
+normal logs. Because my preprocessing pipeline converts logs into 
+an event-count matrix, which inherently discards sequence and 
+timing information, the anomaly signal was completely erased 
+before it even reached the model.
+
+**Note on HDFS 53.33% coverage:**
+Seven of the top 15 HDFS SHAP features are categorised as 
+Unknown because they represent normal block operations — serving, 
+receiving, deleting blocks — whose anomalous count or absence 
+constitutes the anomaly signal, not the presence of an explicit 
+error message. HDFS anomalies are structural (missing replication 
+steps) rather than lexical (explicit error logs). This is 
+discussed in Chapter 5.
+
+**My observation:**
+My first attempt at the actionability script was a reality check. 
+BGL only achieved 13% coverage initially because my generic 
+keyword list entirely missed BGL's specific supercomputer 
+RAS/kernel vocabulary. By iterating on the rules and adding real 
+domain terms rather than forcing matches, I got BGL coverage up 
+to 93.33% — 14 of the top 15 SHAP features successfully 
+categorised, predominantly as Hardware failures. This proves a 
+crucial point for RQ3: XAI is only actionable if the system 
+mapping the SHAP values actually understands the domain-specific 
+vocabulary of the infrastructure. The OpenStack sequencing 
+discovery goes directly into Chapter 5 as a fundamental 
+limitation of count-based log representations.
+
+**Files produced today:**
+- `results/rq3_actionability_HDFS.csv`
+- `results/rq3_actionability_BGL.csv`
+- `results/rq3_coverage.csv`
+- `results/rq3_openstack_qualitative.txt`
+- `results/figures/rq3_actionability_HDFS.png`
+- `results/figures/rq3_actionability_BGL.png`
+- `src/06_rq3_actionability.py`
+- `src/07_rq3_openstack_qualitative.py`
+- `src/utils_rq3.py`
