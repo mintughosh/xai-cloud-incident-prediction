@@ -1,0 +1,58 @@
+
+ 84%|=================   | 338/400 [00:11<00:02]       
+ 92%|==================  | 369/400 [00:12<00:01]       
+STEP: SHAP stability across BGL window sizes
+Loading structured log and event vocabulary...
+  4,747,963 lines loaded, 987 event templates
+
+=== window_size=10 (retrained to match 08_ablation_window_size.py) ===
+  train=332,357 (29041 anomalous), test=71,220 (5661 anomalous)
+  Training RandomForest...
+  Saved model: /Users/mintughosh/msc_dissertation/src/../results/models/BGL_RandomForest_w10.pkl
+  Sampled 200 test instances (16 anomalous) for SHAP
+  Top-10 SHAP features: ['E18', 'E230', 'E3', 'E55', 'E473', 'E398', 'E11', 'E438', 'E6', 'E1']
+
+=== window_size=20 (retrained to match 08_ablation_window_size.py) ===
+  train=166,179 (14950 anomalous), test=35,610 (3007 anomalous)
+  Training RandomForest...
+  Saved model: /Users/mintughosh/msc_dissertation/src/../results/models/BGL_RandomForest_w20.pkl
+  Sampled 200 test instances (17 anomalous) for SHAP
+  Top-10 SHAP features: ['E18', 'E3', 'E230', 'E490', 'E473', 'E438', 'E11', 'E298', 'E466', 'E55']
+
+=== window_size=40 (retrained to match 08_ablation_window_size.py) ===
+  train=83,090 (7807 anomalous), test=17,805 (1656 anomalous)
+  Training RandomForest...
+  Saved model: /Users/mintughosh/msc_dissertation/src/../results/models/BGL_RandomForest_w40.pkl
+  Sampled 200 test instances (19 anomalous) for SHAP
+  Top-10 SHAP features: ['E18', 'E230', 'E3', 'E55', 'E398', 'E473', 'E280', 'E1', 'E466', 'E298']
+
+=== window_size=100 (existing model, not retrained) ===
+  Loading model: /Users/mintughosh/msc_dissertation/src/../results/models/BGL_RandomForest.pkl
+  Sampled 200 test instances (23 anomalous) for SHAP
+  Top-10 SHAP features: ['E18', 'E3', 'E55', 'E473', 'E230', 'E298', 'E6', 'E398', 'E1', 'E233']
+
+=== Top-10 SHAP features side by side ===
+ w10  w20  w40 w100
+ E18  E18  E18  E18
+E230   E3 E230   E3
+  E3 E230   E3  E55
+ E55 E490  E55 E473
+E473 E473 E398 E230
+E398 E438 E473 E298
+ E11  E11 E280   E6
+E438 E298   E1 E398
+  E6 E466 E466   E1
+  E1  E55 E298 E233
+
+Computing pairwise Jaccard similarity...
+  (10 vs 20): jaccard=0.5385, common=['E3', 'E11', 'E18', 'E55', 'E230', 'E438', 'E473']
+  (10 vs 40): jaccard=0.5385, common=['E1', 'E3', 'E18', 'E55', 'E230', 'E398', 'E473']
+  (10 vs 100): jaccard=0.6667, common=['E1', 'E3', 'E6', 'E18', 'E55', 'E230', 'E398', 'E473']
+  (20 vs 40): jaccard=0.5385, common=['E3', 'E18', 'E55', 'E230', 'E298', 'E466', 'E473']
+  (20 vs 100): jaccard=0.4286, common=['E3', 'E18', 'E55', 'E230', 'E298', 'E473']
+  (40 vs 100): jaccard=0.6667, common=['E1', 'E3', 'E18', 'E55', 'E230', 'E298', 'E398', 'E473']
+
+Saved: /Users/mintughosh/msc_dissertation/src/../results/shap_stability_window.csv
+
+STEP COMPLETE: SHAP stability analysis finished successfully
+

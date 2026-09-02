@@ -42,6 +42,7 @@ PROCESSED_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "processed
 REBUILD_WINDOW_SIZES = [10, 20, 40]
 EXISTING_WINDOW_SIZE = 100
 SAMPLE_SIZE = 200
+BACKGROUND_SIZE = 100
 TOP_N = 10
 RANDOM_STATE = 42
 
@@ -49,10 +50,14 @@ RANDOM_STATE = 42
 def get_model_and_test_sample(window_size, df, sorted_event_ids):
     """Train (window sizes 10/20/40) or load (window size 100) the RF model and a test sample.
 
-    Returns (model, X_sample_dense_df, y_sample) — dense, since SHAP
-    TreeExplainer and this project's stratified_sample helper both expect
-    array-like/DataFrame input, and a 200-row sample is small enough that
-    densifying it (unlike the full sparse training matrices) is fine.
+    Returns (model, X_sample, feature_cols, background) — X_sample and
+    background are dense DataFrames (SHAP TreeExplainer and this project's
+    stratified_sample helper both expect array-like/DataFrame input, and a
+    100-200 row sample is small enough that densifying it, unlike the full
+    sparse training matrices, is fine). background is a 100-row sample of
+    the train split, required because class_weight='balanced' RandomForest
+    needs feature_perturbation='interventional' to produce correct SHAP
+    values (see compute_top10()'s docstring).
     """
     if window_size == EXISTING_WINDOW_SIZE:
         print(f"\n=== window_size={window_size} (existing model, not retrained) ===")
@@ -61,9 +66,11 @@ def get_model_and_test_sample(window_size, df, sorted_event_ids):
         with open(model_path, "rb") as f:
             model = pickle.load(f)
 
+        train_df = pd.read_csv(os.path.join(PROCESSED_DIR, "BGL", "splits", "train.csv"))
         test_df = pd.read_csv(os.path.join(PROCESSED_DIR, "BGL", "splits", "test.csv"))
         feature_cols = get_feature_columns(test_df)
         X_test, y_test = test_df[feature_cols], test_df["Label"]
+        background = train_df[feature_cols].sample(BACKGROUND_SIZE, random_state=RANDOM_STATE)
     else:
         print(f"\n=== window_size={window_size} (retrained to match 08_ablation_window_size.py) ===")
         X, y = build_windows_sparse(df, window_size, sorted_event_ids)
@@ -86,19 +93,28 @@ def get_model_and_test_sample(window_size, df, sorted_event_ids):
         feature_cols = sorted_event_ids
         X_test = pd.DataFrame(X_test_sparse.toarray(), columns=feature_cols)
         y_test = pd.Series(y_test)
+        background_idx = np.random.RandomState(RANDOM_STATE).choice(
+            X_train.shape[0], size=min(BACKGROUND_SIZE, X_train.shape[0]), replace=False
+        )
+        background = pd.DataFrame(X_train[background_idx].toarray(), columns=feature_cols)
 
     X_sample, y_sample = stratified_sample(X_test, y_test, SAMPLE_SIZE, RANDOM_STATE)
     print(f"  Sampled {len(X_sample)} test instances ({int(y_sample.sum())} anomalous) for SHAP")
-    return model, X_sample, feature_cols
+    return model, X_sample, feature_cols, background
 
 
-def compute_top10(model, X_sample, feature_cols):
-    """Run SHAP TreeExplainer and return the top-10 feature names by mean |SHAP value|."""
-    explainer = shap.TreeExplainer(model)
-    # class_weight='balanced' breaks TreeExplainer's additivity assumption
-    # for RandomForestClassifier (see 04_explain_rq2.py) — same documented
-    # workaround applies here.
-    explanation = explainer(X_sample, check_additivity=False)
+def compute_top10(model, X_sample, feature_cols, background):
+    """Run SHAP TreeExplainer and return the top-10 feature names by mean |SHAP value|.
+
+    class_weight='balanced' RandomForest corrupts TreeExplainer's default
+    'tree_path_dependent' algorithm outright (confirmed: SHAP magnitudes up
+    to ~1e11-1e27 for a model whose predict_proba is bounded in [0, 1]), not
+    just a failed additivity check. feature_perturbation='interventional'
+    with an explicit background sample is the fix — see 04_explain_rq2.py's
+    run_shap() docstring for the full diagnosis.
+    """
+    explainer = shap.TreeExplainer(model, data=background, feature_perturbation="interventional")
+    explanation = explainer(X_sample)
     shap_values = extract_positive_class_shap(explanation)
 
     mean_abs_shap = np.abs(shap_values).mean(axis=0)
@@ -126,8 +142,8 @@ def main():
         top10_by_window = {}
 
         for ws in window_sizes:
-            model, X_sample, feature_cols = get_model_and_test_sample(ws, df, sorted_event_ids)
-            top10 = compute_top10(model, X_sample, feature_cols)
+            model, X_sample, feature_cols, background = get_model_and_test_sample(ws, df, sorted_event_ids)
+            top10 = compute_top10(model, X_sample, feature_cols, background)
             top10_by_window[ws] = top10
             print(f"  Top-{TOP_N} SHAP features: {top10}")
 

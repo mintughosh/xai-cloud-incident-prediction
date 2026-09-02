@@ -795,3 +795,85 @@ BGL SHAP summary plot for the first time since it was generated.
 
 ---
 
+### Day 16 — 20 August 2026
+
+**Objective:** Figure Generation Check and Validation — and a Critical SHAP Correctness Bug Found During That Check
+
+**Completed:**
+- [x] Implemented `src/13_figure_inventory_check.py` to verify all 11
+  required dissertation figures exist under their required filenames,
+  meet dpi >= 150, and carry proper titles/axis labels/legends
+- [x] Found 4 SHAP figures existed only under a different naming
+  convention (e.g. `HDFS_shap_summary.png` vs the required
+  `shap_summary_HDFS.png`) and had no title at all — regenerated under
+  the correct names with titles added
+- [x] Found `faithfulness_HDFS.png` / `faithfulness_BGL.png` had never
+  been generated (only the CSVs existed) — generated both from the
+  saved faithfulness CSVs
+- [x] While visually inspecting the regenerated BGL SHAP summary plot
+  (not just reading printed summary statistics), found SHAP magnitudes
+  up to 5e11 on the x-axis — for a model whose predict_proba output is
+  bounded in [0, 1]. This is not a plotting bug; it is a corrupted
+  underlying computation
+- [x] Root-caused the corruption: `RandomForestClassifier(class_weight=
+  'balanced')` breaks SHAP TreeExplainer's default
+  `tree_path_dependent` algorithm outright. The 07 Aug entry in the
+  Error Log above, which treated this as a harmless additivity-check
+  technicality safe to silence with `check_additivity=False`, was
+  wrong — the SHAP values themselves were numerically corrupted (up to
+  1e27 on the window-size ablation's w10 model), not just failing a
+  safety check
+- [x] Applied the real fix — `feature_perturbation='interventional'`
+  with an explicit 100-row background sample — confirmed by direct
+  testing to restore correct, probability-scale magnitudes and a
+  passing additivity check with no need to disable it
+- [x] Recomputed every downstream BGL SHAP artifact affected by every
+  RandomForest model in the project (window sizes 10, 20, 40, and the
+  100 baseline): SHAP values, feature rankings, faithfulness results,
+  the SHAP-LIME Spearman correlation, RQ3 actionability categorisation,
+  and the window-size SHAP-stability Jaccard analysis — plus every
+  figure derived from any of them
+
+**Corrected findings (numbers below supersede earlier entries in this
+log that used the pre-fix, corrupted BGL RandomForest SHAP values —
+this section does not edit those earlier entries, it supersedes them):**
+
+| Metric | Previously reported | Corrected |
+|--------|---------------------|-----------|
+| SHAP-LIME Spearman (BGL) | r=0.113 | r=0.138 (conclusion unchanged: weak agreement) |
+| RQ3 BGL actionability coverage | 93.33% (14/15) | 86.67% (13/15) (conclusion unchanged: highly actionable, Hardware-failure dominated) |
+| SHAP stability Jaccard across window sizes | 0.176-0.333 | 0.43-0.667 (conclusion REVERSED — see below) |
+
+**Key finding today:**
+The window-size SHAP-stability conclusion reverses under the corrected
+values. BGL's SHAP feature rankings are moderately stable across window
+sizes (Jaccard 0.43-0.667, with E18, E3, E55, E230, E473 persisting
+across most or all sizes) — not "highly unstable" as previously
+reported. The genuine instability this project has found is
+cross-explainer (SHAP vs LIME) disagreement (Spearman r=0.138), not
+sensitivity to an upstream preprocessing hyperparameter like window
+size. This is a cleaner, more specific RQ2 claim than the one it
+replaces.
+
+**My observation:**
+This is the most important methodological lesson of the whole project.
+A printed additivity-check error and a disabled safety flag looked, on
+the surface, like a minor implementation detail — I documented it at
+the time as "a documented SHAP/sklearn interaction, not a sign of
+incorrect SHAP values." That sentence was wrong, and it stayed wrong
+for nine days and four downstream result files until I actually looked
+at the rendered figure instead of trusting the code that produced it.
+The lesson generalises past SHAP: any time a numerical safety check
+fails and the fix is to disable the check rather than understand why it
+failed, the burden of proof that the underlying computation is still
+correct sits with me, not with the absence of a crash.
+
+**Files produced today:**
+- `src/13_figure_inventory_check.py`
+- `logs/figure_inventory.txt`
+- Corrected: `results/shap_values/BGL_shap_values.npy`,
+  `results/feature_ranking_BGL.csv`, `results/faithfulness_BGL.csv`,
+  `results/shap_lime_spearman.csv`, `results/rq3_actionability_BGL.csv`,
+  `results/rq3_coverage.csv`, `results/shap_stability_window.csv`,
+  `results/models/BGL_RandomForest_w{10,20,40}.pkl`, and all BGL/HDFS
+  SHAP and faithfulness figures

@@ -1,0 +1,16 @@
+Figure Inventory Check
+============================================================
+
+shap_summary_HDFS.png: 1127x1432px, dpi=150x150 [OK]
+shap_summary_BGL.png: 1129x1432px, dpi=150x150 [OK]
+shap_waterfall_HDFS.png: 1304x922px, dpi=150x150 [OK]
+shap_waterfall_BGL.png: 1234x922px, dpi=150x150 [OK]
+rq3_actionability_HDFS.png: 1806x934px, dpi=150x150 [OK]
+rq3_actionability_BGL.png: 1765x934px, dpi=150x150 [OK]
+ablation_window_size.png: 933x701px, dpi=150x150 [OK]
+temporal_drift_bgl.png: 1118x701px, dpi=150x150 [OK]
+hyperparameter_heatmap.png: 1923x746px, dpi=150x150 [OK]
+faithfulness_HDFS.png: 937x701px, dpi=150x150 [OK]
+faithfulness_BGL.png: 950x701px, dpi=150x150 [OK]
+
+Summary: 11 required figures checked

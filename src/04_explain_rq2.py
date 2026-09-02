@@ -64,18 +64,29 @@ LIME_NUM_SAMPLES = 1000
 FAITHFULNESS_K = [1, 2, 3, 5, 10]
 RANDOM_STATE = 42
 
+BACKGROUND_SIZE = 100
+
 DATASET_CONFIG = {
     "HDFS": {
         "model_name": "LightGBM",
         "build_model": lambda spw: LGBMClassifier(
             n_estimators=300, scale_pos_weight=spw, random_state=RANDOM_STATE, verbosity=-1
         ),
+        # LightGBM's default 'tree_path_dependent' TreeExplainer is fine here
+        # (scale_pos_weight is a loss reweighting, not the sample-count
+        # reweighting that breaks RF's leaf-value bookkeeping — see BGL).
+        "needs_shap_background": False,
     },
     "BGL": {
         "model_name": "RandomForest",
         "build_model": lambda spw: RandomForestClassifier(
             n_estimators=300, class_weight="balanced", random_state=RANDOM_STATE, n_jobs=-1
         ),
+        # class_weight='balanced' breaks TreeExplainer's default algorithm
+        # outright (corrupted magnitudes, not just a failed additivity
+        # check) — requires feature_perturbation='interventional' with an
+        # explicit background sample. See run_shap()'s docstring.
+        "needs_shap_background": True,
     },
 }
 
@@ -109,16 +120,26 @@ def train_and_save_model(name, config, X_train, y_train):
     return model
 
 
-def run_shap(name, model, X_sample, feature_cols):
-    """Run SHAP TreeExplainer, save raw values, and produce summary + waterfall plots."""
+def run_shap(name, model, X_sample, feature_cols, background=None):
+    """Run SHAP TreeExplainer, save raw values, and produce summary + waterfall plots.
+
+    RandomForestClassifier(class_weight='balanced') breaks TreeExplainer's
+    default 'tree_path_dependent' algorithm outright: it doesn't just fail
+    the additivity check, it produces numerically corrupted SHAP values
+    (confirmed by direct inspection: magnitudes up to ~1e11-1e27 for a
+    model whose predict_proba output is bounded in [0, 1]). Disabling
+    check_additivity, as an earlier version of this script did, silences
+    the symptom without fixing the cause. The real fix, per SHAP's own
+    error message, is feature_perturbation='interventional' with an
+    explicit background dataset — confirmed here to restore both correct
+    magnitudes and a passing additivity check (no need to disable it).
+    """
     print("  Running SHAP TreeExplainer...")
-    explainer = shap.TreeExplainer(model)
-    # RandomForestClassifier(class_weight='balanced') reweights samples during
-    # training, which breaks TreeExplainer's internal additivity assumption
-    # (it expects leaf values to reflect raw, unweighted sample counts). This
-    # is a documented SHAP/sklearn interaction, not a sign of incorrect SHAP
-    # values, so the strict additivity check is disabled here.
-    explanation = explainer(X_sample, check_additivity=False)
+    if background is not None:
+        explainer = shap.TreeExplainer(model, data=background, feature_perturbation="interventional")
+    else:
+        explainer = shap.TreeExplainer(model)
+    explanation = explainer(X_sample)
 
     is_multiclass_output = np.array(explanation.values).ndim == 3
     pos_explanation = explanation[:, :, -1] if is_multiclass_output else explanation
@@ -225,7 +246,12 @@ def process_dataset(name, config):
     X_sample, y_sample = stratified_sample(X_test, y_test, SAMPLE_SIZE, RANDOM_STATE)
     print(f"  Sampled {len(X_sample)} test instances ({int(y_sample.sum())} anomalous)")
 
-    shap_values, pos_explanation = run_shap(name, model, X_sample, feature_cols)
+    background = None
+    if config["needs_shap_background"]:
+        background = X_train.sample(BACKGROUND_SIZE, random_state=RANDOM_STATE)
+        print(f"  Built {len(background)}-row SHAP background sample from train split")
+
+    shap_values, pos_explanation = run_shap(name, model, X_sample, feature_cols, background=background)
     save_waterfall_plot(name, pos_explanation, y_sample)
 
     lime_df = run_lime(name, model, X_train, X_sample, feature_cols)

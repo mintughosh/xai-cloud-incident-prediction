@@ -1,0 +1,51 @@
+STEP: BGL window-size ablation study
+Loading structured log: /Users/mintughosh/msc_dissertation/src/../data/processed/BGL/BGL_structured.csv
+  4,747,963 lines loaded
+  987 event templates (fixed vocabulary, independent of window size)
+
+=== window_size=10 (rebuilt from BGL_structured.csv) ===
+  474,797 windows, 39,023 anomalous (8.22%)
+  train=332,357 (29041 anomalous), test=71,220 (5661 anomalous)
+  Training RandomForest...
+    [RandomForest] F1=0.3280 Precision=0.9982 Recall=0.1963 AUC-ROC=0.7573
+  Training LightGBM...
+    [LightGBM] F1=0.3332 Precision=0.9409 Recall=0.2024 AUC-ROC=0.7563
+
+=== window_size=20 (rebuilt from BGL_structured.csv) ===
+  237,399 windows, 20,262 anomalous (8.53%)
+  train=166,179 (14950 anomalous), test=35,610 (3007 anomalous)
+  Training RandomForest...
+    [RandomForest] F1=0.3489 Precision=0.9953 Recall=0.2115 AUC-ROC=0.7492
+  Training LightGBM...
+    [LightGBM] F1=0.3552 Precision=0.8703 Recall=0.2231 AUC-ROC=0.7544
+
+=== window_size=40 (rebuilt from BGL_structured.csv) ===
+  118,700 windows, 10,748 anomalous (9.05%)
+  train=83,090 (7807 anomalous), test=17,805 (1656 anomalous)
+  Training RandomForest...
+    [RandomForest] F1=0.3816 Precision=0.9633 Recall=0.2379 AUC-ROC=0.7613
+  Training LightGBM...
+    [LightGBM] F1=0.2479 Precision=0.1437 Recall=0.9016 AUC-ROC=0.7567
+
+=== window_size=100 (existing splits, not rebuilt) ===
+  train=33,236 (3370 anomalous), test=7,122 (802 anomalous)
+  Training RandomForest...
+    [RandomForest] F1=0.4659 Precision=0.9685 Recall=0.3067 AUC-ROC=0.7850
+  Training LightGBM...
+    [LightGBM] F1=0.2743 Precision=0.1616 Recall=0.9077 AUC-ROC=0.7398
+
+Saved: /Users/mintughosh/msc_dissertation/src/../results/ablation_window_size.csv
+ window_size        model  precision   recall       f1  auc_roc
+          10     LightGBM   0.940887 0.202438 0.333188 0.756307
+          10 RandomForest   0.998203 0.196255 0.328019 0.757327
+          20     LightGBM   0.870298 0.223146 0.355214 0.754359
+          20 RandomForest   0.995305 0.211506 0.348875 0.749183
+          40     LightGBM   0.143710 0.901570 0.247904 0.756674
+          40 RandomForest   0.963325 0.237923 0.381598 0.761262
+         100     LightGBM   0.161562 0.907731 0.274303 0.739834
+         100 RandomForest   0.968504 0.306733 0.465909 0.785018
+
+Saved figure: /Users/mintughosh/msc_dissertation/src/../results/figures/ablation_window_size.png
+
+STEP COMPLETE: BGL window-size ablation finished successfully
+

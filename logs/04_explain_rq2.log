@@ -1,4 +1,6 @@
-/opt/anaconda3/envs/msc_dissertation/lib/python3.12/site-packages/sklearn/base.py:493: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+
+ 86%|=================   | 342/400 [00:11<00:01]       
+ 94%|=================== | 374/400 [00:12<00:00]       /opt/anaconda3/envs/msc_dissertation/lib/python3.12/site-packages/sklearn/base.py:493: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
   warnings.warn(
 /opt/anaconda3/envs/msc_dissertation/lib/python3.12/site-packages/sklearn/base.py:493: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
   warnings.warn(
@@ -441,6 +443,7 @@ Dataset Method  k  mean_prob_drop  std_prob_drop
   Training RandomForest on BGL train split (33,236 rows)...
   Saved model: /Users/mintughosh/msc_dissertation/src/../results/models/BGL_RandomForest.pkl
   Sampled 200 test instances (23 anomalous)
+  Built 100-row SHAP background sample from train split
   Running SHAP TreeExplainer...
   Saved SHAP values: /Users/mintughosh/msc_dissertation/src/../results/shap_values/BGL_shap_values.npy (shape=(200, 987))
   Saved SHAP summary plot: /Users/mintughosh/msc_dissertation/src/../results/figures/BGL_shap_summary.png
@@ -454,11 +457,11 @@ Dataset Method  k  mean_prob_drop  std_prob_drop
   Running faithfulness (deletion) test...
   Saved faithfulness results: /Users/mintughosh/msc_dissertation/src/../results/faithfulness_BGL.csv
 Dataset Method  k  mean_prob_drop  std_prob_drop
-    BGL   SHAP  1        0.000000       0.000000
-    BGL   SHAP  2       -0.025167       0.079841
-    BGL   SHAP  3       -0.027217       0.081027
-    BGL   SHAP  5       -0.018533       0.121801
-    BGL   SHAP 10       -0.017933       0.122236
+    BGL   SHAP  1        0.000767       0.136046
+    BGL   SHAP  2       -0.003767       0.139058
+    BGL   SHAP  3       -0.004100       0.141954
+    BGL   SHAP  5       -0.002033       0.148835
+    BGL   SHAP 10        0.001767       0.162359
     BGL   LIME  1       -0.015283       0.068929
     BGL   LIME  2       -0.017000       0.069894
     BGL   LIME  3       -0.017383       0.070355
@@ -471,12 +474,12 @@ Dataset Method  k  mean_prob_drop  std_prob_drop
     BGL Random 10       -0.000233       0.008651
   Computing SHAP-LIME Spearman rank agreement...
   Saved feature ranking: /Users/mintughosh/msc_dissertation/src/../results/feature_ranking_BGL.csv
-  Spearman correlation (SHAP vs LIME): r=0.1133, p=0.0003612
+  Spearman correlation (SHAP vs LIME): r=0.1378, p=1.398e-05
 
 Saved combined Spearman agreement summary: /Users/mintughosh/msc_dissertation/src/../results/shap_lime_spearman.csv
 Dataset  SpearmanR   PValue  N_Features
    HDFS   0.676212 0.000057          29
-    BGL   0.113313 0.000361         987
+    BGL   0.137792 0.000014         987
 
 STEP COMPLETE: RQ2 explainability analysis finished successfully
 

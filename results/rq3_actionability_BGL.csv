@@ -1,16 +1,16 @@
 rank,event_id,template_text,mean_shap,category
-1,E18,data TLB error interrupt,350839017035.0779,Hardware failure
-2,E473,iar <*> dear <*>,241514883758.07217,Unknown
-3,E280,ciod: Error creating node map from file <*> <*> <*> <*>,139498455106.27988,Application error
-4,E255,Ido chip status changed: <*> ip=<IP> v=<NUM> t=<NUM> status=M <*> <*> <NUM> <NUM>:<NUM>:<NUM> <*> <NUM>,123737313503.1463,Hardware failure
-5,E3,generating core.<NUM>,117463312729.0316,Application error
-6,E230,data storage interrupt,58282172416.256935,Hardware failure
-7,E438,Lustre mount FAILED : bglio<NUM> : block_id : location,46685991141.743904,Network fault
-8,E6,"CE sym <NUM>, at <HEX>, mask <HEX>",20611167966.781517,Hardware failure
-9,E11,<NUM> double-hummer alignment exceptions,15823997880.201706,Application error
-10,E233,program interrupt: <*> <*>,15315956047.32794,Hardware failure
-11,E55,rts panic! - stopping execution,14386528640.586643,Application error
-12,E343,ciod: Missing or invalid fields on line <NUM> of node map file <*>,14098679594.722034,Application error
-13,E57,data address: <HEX>,13811179882.287756,Hardware failure
-14,E449,rts tree/torus link training failed: wanted: C X+ X- Y+ Y- Z+ Z- got: C <*> <*> <*> <*>,13317258377.152197,Network fault
-15,E466,rts: kernel terminated for reason <NUM>,12864841753.60323,Application error
+1,E18,data TLB error interrupt,0.0577376816978786,Hardware failure
+2,E3,generating core.<NUM>,0.0505085098171956,Application error
+3,E55,rts panic! - stopping execution,0.0095085878510227,Application error
+4,E473,iar <*> dear <*>,0.0088448431582542,Unknown
+5,E230,data storage interrupt,0.0081673977455061,Hardware failure
+6,E298,<NUM> floating point alignment exceptions,0.0071653330093405,Application error
+7,E6,"CE sym <NUM>, at <HEX>, mask <HEX>",0.0068713686545279,Hardware failure
+8,E398,ciod: Error reading message prefix after <*> on CioStream socket to <IP>: <*> <*> <*> <*>,0.0065046150902978,Network fault
+9,E1,instruction cache parity error corrected,0.0038643148524275,Hardware failure
+10,E233,program interrupt: <*> <*>,0.0032898110446985,Hardware failure
+11,E438,Lustre mount FAILED : bglio<NUM> : block_id : location,0.0028584564816546,Network fault
+12,E23,instruction plb error.............<NUM>,0.0021642014711072,Application error
+13,E11,<NUM> double-hummer alignment exceptions,0.0020116327131582,Application error
+14,E21,machine check status register: <HEX>,0.0019964505092941,Hardware failure
+15,E22,summary...........................<NUM>,0.0019050663588794,Unknown
