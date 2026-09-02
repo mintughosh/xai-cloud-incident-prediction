@@ -97,6 +97,7 @@ def main():
 
         plt.figure()
         shap.summary_plot(shap_values, X, feature_names=feature_cols, show=False)
+        plt.title("OpenStack: SHAP Summary Plot (Feature Impact on Anomaly Prediction, Qualitative Only)")
         summary_path = os.path.join(FIGURES_DIR, "OpenStack_shap_summary.png")
         plt.savefig(summary_path, dpi=150, bbox_inches="tight")
         plt.close()
@@ -108,6 +109,7 @@ def main():
         for i, pos in enumerate(anomaly_positions):
             plt.figure()
             shap.plots.waterfall(pos_explanation[int(pos)], show=False)
+            plt.title(f"OpenStack: SHAP Waterfall — Anomalous Instance {i + 1}/{len(anomaly_positions)}")
             waterfall_path = os.path.join(FIGURES_DIR, f"OpenStack_shap_waterfall_{i + 1}.png")
             plt.savefig(waterfall_path, dpi=150, bbox_inches="tight")
             plt.close()

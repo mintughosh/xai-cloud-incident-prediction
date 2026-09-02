@@ -1,0 +1,59 @@
+Final Code Cleanup — Step 2 Report
+============================================================
+
+1. Module/function docstring audit (src/*.py, AST-based check)
+------------------------------------------------------------
+All 19 files already fully compliant — no missing module or function
+docstrings found. No edits needed.
+
+  00_inspect_data.py: OK
+  01_preprocess_bgl.py: OK
+  01_preprocess_openstack.py: OK
+  02_build_splits.py: OK
+  03_train_baselines.py: OK
+  04_explain_rq2.py: OK
+  05_explain_openstack_shap.py: OK
+  06_rq3_actionability.py: OK
+  07_rq3_openstack_qualitative.py: OK
+  08_ablation_window_size.py: OK
+  09_shap_stability_window.py: OK
+  10_temporal_drift_bgl.py: OK
+  11_hyperparameter_sensitivity.py: OK
+  12_results_inventory.py: OK
+  13_figure_inventory_check.py: OK
+  utils_bgl_windows.py: OK
+  utils_data.py: OK
+  utils_explain.py: OK
+  utils_rq3.py: OK
+
+2. requirements.txt
+------------------------------------------------------------
+Regenerated via `pip freeze` inside the msc_dissertation conda
+environment. 134 packages pinned to exact installed versions.
+
+3. README.md
+------------------------------------------------------------
+Added three new sections:
+  - Hardware and Environment (macOS ARM64 Apple Silicon, Python 3.12.7)
+  - Scripts — Execution Order (15 scripts, one-line description +
+    approximate run time each, measured on this hardware)
+  - Results CSVs (what each of the 12 top-level results/ CSV/TXT
+    files contains)
+
+4. .gitignore verification
+------------------------------------------------------------
+Confirmed present (pre-existing, no changes needed):
+  data/raw/, data/processed/, data/  -> excludes all raw/processed data
+  results/models/, results/shap_values/  -> excludes trained models and SHAP arrays
+  *.pkl, *.npy, *.npz  -> excludes those file types wherever they appear
+
+5. Figure title compliance follow-up (found during Step 1, fixed here)
+------------------------------------------------------------
+OpenStack_shap_summary.png (from 05_explain_openstack_shap.py) had no
+title — the title-compliance fix applied to HDFS/BGL's SHAP figures in
+an earlier session was never applied to this script. Added
+plt.title(...) to both the OpenStack summary plot and its 4 waterfall
+plots, and regenerated all 5 figures. MeanAbsSHAP values unchanged
+(deterministic recomputation, confirmed E3=0.934857 matches prior run).
+
+STEP 2 COMPLETE
