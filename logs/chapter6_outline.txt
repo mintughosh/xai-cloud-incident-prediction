@@ -1,0 +1,40 @@
+CHAPTER 6: CONCLUSION AND RECOMMENDATIONS — OUTLINE
+Target total: 700-900 words (allocations below sum to ~800)
+==============================================================
+
+6.1 Summary of Findings (target: 180 words)
+Must cover:
+- One sentence per RQ: RQ1 — model choice matters little on HDFS, greatly on BGL under drift, and is moot on OpenStack given data structure; RQ2 — SHAP-LIME agreement degrades sharply with feature-space size and is further destabilised by preprocessing choices like window size; RQ3 — actionability coverage does not track explanation agreement, and OpenStack's anomalies evade event-count representation entirely.
+References: results/model_results.csv; results/shap_lime_spearman.csv; results/rq3_coverage.csv
+
+6.2 Achievement of Research Objectives (target: 130 words)
+Must cover:
+- Map each stated objective (from 1.3) to the specific evidence that satisfies it, referencing the exact result file.
+- Note any objective only partially achieved (e.g. OpenStack's quantitative RQ1/RQ2 objectives were structurally unachievable, addressed instead via a documented methodological exception).
+References: logs/results_checklist.txt
+
+6.3 Contributions to Knowledge (target: 150 words)
+Must cover:
+- Empirical contribution: quantified SHAP-LIME agreement as a function of feature-space dimensionality (two data points, but a specific measured relationship, not an assertion).
+- Methodological contribution: demonstrated explanation-stability sensitivity to a preprocessing hyperparameter (window size) as a distinct failure mode from explainer disagreement.
+- Applied contribution: the OpenStack sequencing discovery, showing event-count feature representations can be structurally blind to certain anomaly types.
+References: results/shap_lime_spearman.csv; results/shap_stability_window.csv; results/rq3_openstack_qualitative.txt
+
+6.4 Recommendations for Practice (target: 130 words)
+Must cover:
+- For SRE teams: do not deploy a static supervised log classifier without ongoing drift monitoring (per the BGL temporal-drift dip-and-recover finding).
+- For XAI adopters: validate SHAP/LIME agreement empirically per deployment rather than assuming reliability transfers from a paper's benchmark dataset to production's feature space.
+- For OpenTelemetry pipeline designers: capture sequencing/timing-based features alongside event counts.
+References: results/temporal_drift_bgl.csv; results/rq3_openstack_qualitative.txt
+
+6.5 Future Research Directions (target: 130 words)
+Must cover:
+- Validate this pipeline against live OpenTelemetry telemetry rather than static historical benchmark logs.
+- Extend the SHAP-LIME agreement analysis across more than two dimensionality points to test whether the relationship is linear, and across more datasets than just HDFS/BGL.
+- Investigate anomaly representations that explicitly encode event sequencing/timing, motivated directly by the OpenStack finding.
+References: none
+
+6.6 Concluding Remarks (target: 80 words)
+Must cover:
+- Close on the dissertation's central claim: accurate cloud incident prediction and trustworthy explanation are separate achievements, and this study is evidence that both must be measured, not assumed, before deployment.
+References: none

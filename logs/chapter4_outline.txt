@@ -1,0 +1,94 @@
+CHAPTER 4: RESULTS AND ANALYSIS — OUTLINE
+Target total: 3,000-3,300 words (allocations below sum to ~3,250)
+==============================================================
+
+4.1 Introduction (target: 100 words)
+Must cover:
+- State that this chapter reports results only (no interpretation — that is Chapter 5), organised RQ1 -> ablations -> RQ2 -> RQ3.
+- Note that four follow-up studies (4.4-4.6, part of 4.7) go beyond the original three RQs, added specifically to stress-test the BGL concept-drift finding and the SHAP-LIME agreement finding.
+References: none
+
+4.2 Dataset Characteristics (target: 250 words)
+Must cover:
+- Table of raw scale, template count post-masking, and anomaly rate per dataset (HDFS: 575,061 blocks, 29 templates, 2.93%; BGL: 47,480 windows, 987 templates, 10.12%; OpenStack: 2,069 sessions, 47 templates, 0.19%).
+- State the chronological-split infeasibility for OpenStack as a data characteristic, not a code limitation (abnormal log predates normal logs entirely).
+References: data/processed/{HDFS,BGL,OpenStack}/splits/; results/rq3_openstack_qualitative.txt
+
+4.3 RQ1: Model Performance Results (target: 50 words, parent framing only)
+Must cover:
+- One-sentence preview that results diverge sharply by dataset: near-perfect (HDFS), volatile (BGL), and structurally undetectable (OpenStack).
+References: results/model_results.csv
+
+4.3.1 HDFS Results (target: 250 words)
+Must cover:
+- Report all three models' val/test F1/Precision/Recall/AUC-ROC (all ~0.998-0.999) verbatim from the results table.
+- Note the Type-column leakage-prevention step as the reason these near-perfect scores are trustworthy rather than an artifact.
+References: results/model_results.csv
+
+4.3.2 BGL Results and Concept Drift Evidence (target: 300 words)
+Must cover:
+- Report the val->test F1 drop for all three models (e.g. LightGBM 0.74 val -> 0.27 test) as the headline concept-drift evidence.
+- Report Random Forest as best-generalising (test F1=0.47, Precision=0.97, Recall=0.31) and justify the precision-over-recall preference in an SRE alerting context.
+- Cross-reference forward to 4.5's temporal drift analysis, which shows the drift is not monotonic but a dip-and-recover pattern within the test period itself.
+References: results/model_results.csv; results/temporal_drift_bgl.csv
+
+4.3.3 OpenStack Results and Limitation (target: 250 words)
+Must cover:
+- Report near-zero F1 across all three models under 4-fold CV (documented exception to 5-fold, capped by the 4-anomaly minimum).
+- State this as an expected, reported consequence of extreme class rarity, not a pipeline defect — cross-reference the qualitative finding (4.8.3) that the anomalies don't even manifest as distinct log templates.
+References: results/model_results.csv
+
+4.4 Window Size Ablation Study (target: 300 words)
+Must cover:
+- Report the F1-vs-window_size table/figure for RF and LightGBM across {10,20,40,100}: RF improves monotonically (0.328->0.466) while LightGBM swings unpredictably between precision-heavy and recall-heavy regimes.
+- State window_size=100 is empirically the best-performing choice for RF, validating (not just assuming) the project-wide default.
+References: results/ablation_window_size.csv; results/figures/ablation_window_size.png
+
+4.5 Temporal Drift Analysis (target: 300 words)
+Must cover:
+- Report the 3-chunk F1/AUC-ROC table: both models dip sharply in chunk 2 (RF AUC-ROC falls to 0.541, near-random) then partially recover in chunk 3.
+- Characterise this explicitly as a non-monotonic, transient failure regime rather than steady degradation — a more specific claim than generic "concept drift."
+References: results/temporal_drift_bgl.csv; results/figures/temporal_drift_bgl.png
+
+4.6 Hyperparameter Sensitivity Analysis (target: 300 words)
+Must cover:
+- Report the 27-combination grid's F1 range (0.4314 max vs 0.2661 min, a 0.165 range) and best combination (n_estimators=200, learning_rate=0.01, num_leaves=63).
+- Report learning_rate as the most impactful parameter by main-effect range (0.109), with lower values consistently better — connect to concept drift: aggressive fitting overfits to train-period patterns.
+- Note the default LightGBM configuration used in 4.3.2 sits near the worst-performing corner of this grid — a limitation of the RQ1 baseline comparison to flag in Ch.5.
+References: results/hyperparameter_sensitivity.csv; results/figures/hyperparameter_heatmap.png
+
+4.7 RQ2: SHAP and LIME Agreement (target: 300 words)
+Must cover:
+- Report Spearman r=0.676 (p<0.001) for HDFS (29 features) vs r=0.113 (p<0.001) for BGL (987 features) as the central RQ2 finding.
+- Report faithfulness (deletion-test) results for both datasets including the random-ranking control, with the signed mean_prob_drop interpretation caveat restated.
+- Report the SHAP stability-across-window-size finding (Jaccard 0.18-0.33 across all six window-size pairs; only E3 and E230 persist in the top-10 across all four sizes) as evidence that instability isn't only a cross-explainer phenomenon.
+References: results/shap_lime_spearman.csv; results/faithfulness_HDFS.csv; results/faithfulness_BGL.csv; results/shap_stability_window.csv
+
+4.8 RQ3: Actionability Analysis (target: 50 words, parent framing only)
+Must cover:
+- One-sentence preview that actionability coverage differs sharply by dataset (HDFS 53%, BGL 93%) despite BGL having weaker SHAP-LIME agreement — a result worth flagging as counter-intuitive.
+References: results/rq3_coverage.csv
+
+4.8.1 HDFS Actionability (target: 250 words)
+Must cover:
+- Report actionability_coverage=53.33% (8/15); list the dominant uncategorised pattern (routine block-replication bookkeeping: serve/receive/delete block).
+- Report the categorised features that did map cleanly (e.g. E2 "Verification succeeded" -> Data integrity; E4/E7 exception messages -> Application error).
+References: results/rq3_actionability_HDFS.csv; results/figures/rq3_actionability_HDFS.png
+
+4.8.2 BGL Actionability (target: 250 words)
+Must cover:
+- Report actionability_coverage=93.33% (14/15), dominant category Hardware failure (TLB errors, ECC "CE sym" codes, storage/program interrupts).
+- Note this is despite BGL's much weaker SHAP-LIME agreement (r=0.113) — actionability and cross-method agreement are shown to be independent properties of an explanation.
+References: results/rq3_actionability_BGL.csv; results/figures/rq3_actionability_BGL.png
+
+4.8.3 OpenStack Qualitative Analysis (target: 200 words)
+Must cover:
+- Report the finding that all 13 templates triggered by the 4 anomalous instances are ordinary VM lifecycle logs (create, resource-claim, delete, network-deallocate) — 100% "Unknown" by the RQ3 categorisation rubric.
+- State the interpretation this result supports: OpenStack's injected anomalies manifest as anomalous timing/sequencing of normal events, not as distinct failure-type log lines — independently explaining the RQ1 near-zero scores.
+References: results/rq3_openstack_qualitative.txt; results/figures/OpenStack_shap_summary.png; results/figures/OpenStack_shap_waterfall_1.png (through _4.png)
+
+4.9 Chapter Summary (target: 100 words)
+Must cover:
+- One-paragraph recap tying all results back to RQ1/RQ2/RQ3 in turn, without new interpretation.
+- Explicit transition sentence into Chapter 5's discussion.
+References: none

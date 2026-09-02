@@ -1,0 +1,57 @@
+CHAPTER 2: LITERATURE REVIEW — OUTLINE
+Target total: 3,000-3,500 words (allocations below sum to ~3,250)
+==============================================================
+
+2.1 Introduction (target: 150 words)
+Must cover:
+- State the review's scope: cloud ops monitoring -> AIOps -> log anomaly detection -> XAI methods -> observability infra -> concept drift, converging on the identified gap.
+- Signal that the review is organised to build directly toward the three RQs, not as a generic survey.
+References: none
+
+2.2 Cloud Operations and the Reactive Monitoring Problem (target: 450 words)
+Must cover:
+- Traditional threshold/rule-based alerting and its known failure modes (alert fatigue, missed novel failures).
+- The volume/velocity problem: why manual log review doesn't scale (contextualise with this study's raw data volumes — 1.5GB HDFS, 709MB BGL).
+- Prior work motivating predictive (vs. reactive) incident detection from operational telemetry.
+References: none (motivational, cites external literature)
+
+2.3 Artificial Intelligence for IT Operations (AIOps) (target: 500 words)
+Must cover:
+- Define AIOps and its typical pipeline stages (data collection, feature extraction, detection, root-cause, remediation) — situate this dissertation's pipeline within that taxonomy.
+- Review classical ML vs deep learning approaches in AIOps literature and the accuracy/interpretability trade-off each makes.
+- Note the specific gap: most AIOps papers report detection accuracy without operational-trust evaluation — set up why RQ2/RQ3 exist.
+References: none
+
+2.4 Log-Based Anomaly Detection (target: 600 words)
+Must cover:
+- Log parsing approaches (Drain/Drain3 template mining) and why template-based feature engineering is standard for this problem class.
+- Review of HDFS, BGL, OpenStack as established LogPai benchmark datasets — prior reported results (e.g. near-perfect HDFS scores in the literature) as a baseline this study's RQ1 results should be checked against.
+- The session/window construction problem for datasets without a natural session key (BGL, OpenStack) — flag as an under-discussed methodological choice in prior work, setting up Ch.3/Ch.4's window-size ablation as a direct response.
+References: results/model_results.csv (used later to compare against literature-reported HDFS/BGL benchmarks, not needed yet in Ch.2 itself)
+
+2.5 Explainability Methods: SHAP and LIME (target: 550 words)
+Must cover:
+- Theoretical basis of SHAP (Shapley values, TreeExplainer's tree-path-dependent computation) and LIME (local surrogate linear models via perturbation sampling).
+- Known failure modes documented in prior literature: SHAP's additivity assumptions break under certain sklearn configurations (class-weighted models); LIME's sensitivity to perturbation sampling and discretisation choices.
+- Review prior SHAP-vs-LIME agreement studies outside the log domain, to contextualise why this study's r=0.676 (HDFS) vs r=0.113 (BGL) finding is/isn't consistent with existing evidence.
+References: none directly (comparative figures come later in Ch.4/5), but this section's claims are the literature basis for interpreting results/shap_lime_spearman.csv
+
+2.6 Observability Infrastructure and OpenTelemetry (target: 400 words)
+Must cover:
+- OpenTelemetry's role as a vendor-neutral standard unifying logs/metrics/traces — the intended real-world deployment substrate for this dissertation's approach.
+- Gap between academic log-anomaly benchmarks (LogPai datasets, static files) and live OTel pipelines (streaming, schema drift, multi-service correlation) — explicit limitation to be revisited in Ch.5.
+- Prior work (if any) connecting XAI-based log anomaly detection to OpenTelemetry-based observability stacks specifically.
+References: none
+
+2.7 Model Stability and Concept Drift (target: 400 words)
+Must cover:
+- Define concept drift in the context of supervised log classifiers; distinguish from data drift.
+- Review prior work on chronological vs random splitting for time-ordered operational data, and evidence that random splits inflate reported performance — direct justification for this study's Rule 1 (no random split).
+- Review (sparse) prior work on explanation stability under drift or under preprocessing hyperparameter choice, to contextualise the window-size SHAP-stability finding as a genuinely under-explored angle.
+References: none (contextual basis for results/temporal_drift_bgl.csv and results/shap_stability_window.csv interpretation in Ch.5)
+
+2.8 Summary and Identified Gap (target: 200 words)
+Must cover:
+- Synthesise 2.2-2.7 into a single gap statement: prediction accuracy is well-studied, explanation *reliability* (faithfulness + cross-method agreement + stability under preprocessing choices) is not, especially on operational log data.
+- State explicitly how RQ1/RQ2/RQ3 each close one facet of that gap.
+References: none

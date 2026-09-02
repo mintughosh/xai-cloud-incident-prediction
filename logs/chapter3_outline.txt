@@ -1,0 +1,119 @@
+CHAPTER 3: RESEARCH METHODOLOGY — OUTLINE
+Target total: 2,000-2,300 words (allocations below sum to ~2,150)
+==============================================================
+
+3.1 Introduction (target: 100 words)
+Must cover:
+- State that this chapter documents the pipeline exactly as implemented (src/00 through src/12), not an idealised design, including the fixes made along the way.
+- Preview the chapter's structure (design philosophy -> data -> preprocessing -> splits -> models -> XAI -> evaluation -> ablations -> ethics).
+References: none
+
+3.2 Research Design and Philosophy (target: 200 words)
+Must cover:
+- Position the study as quantitative/experimental (benchmark datasets, controlled comparisons) with an embedded qualitative component (RQ3 template categorisation, OpenStack qualitative analysis).
+- State the guiding methodological principles enforced throughout: chronological splitting, imbalance-aware metrics, full reproducibility (every result saved as CSV, every figure at dpi=150).
+References: logs/results_checklist.txt (evidences the reproducibility principle in practice)
+
+3.3 Dataset Selection and Justification (target: 200 words)
+Must cover:
+- Justify HDFS, BGL, OpenStack as established LogPai benchmarks enabling comparison to prior literature.
+- State each dataset's raw scale and anomaly rate (HDFS ~2.9%, BGL ~8-10%, OpenStack ~0.19%) as the basis for later methodological decisions (e.g. OpenStack's k-fold exception).
+References: results/model_results.csv (anomaly rates implicit in N_Positive/N columns); data/raw/*/README.md
+
+3.4 Data Preprocessing (target: 50 words, parent framing only)
+Must cover:
+- One-paragraph statement that HDFS preprocessing reuses LogPai's own Drain3 output while BGL/OpenStack are parsed independently in this project — sets up why the three subsections differ in depth.
+References: none
+
+3.4.1 HDFS Preprocessing (target: 150 words)
+Must cover:
+- Reuse of LogPai's pre-processed Event_occurrence_matrix.csv/anomaly_label.csv; justify this as legitimate given LogPai's established Drain3 methodology.
+- Flag and explain the Type-column label-leakage fix (dropped before training, since it is non-null only on Fail rows).
+- Note the label-vocabulary inconsistency across LogPai's own files (Normal/Anomaly vs Success/Fail) and how it was normalised.
+References: data/raw/HDFS_v1/preprocessed/Event_occurrence_matrix.csv; src/02_build_splits.py (Type-column drop logic)
+
+3.4.2 BGL Preprocessing (target: 150 words)
+Must cover:
+- Drain3 configuration used (masking IPs/hex/numbers before clustering) and why: an unmasked first attempt produced 1,822 inflated templates vs 987 after masking.
+- Fixed-size window construction (window_size=100 baseline) as a substitute for BGL's lack of a natural session key.
+- The line-parsing edge case fixed (9-field lines with empty message content, initially dropped, corrected to recover the full 4,747,963-line count).
+References: data/processed/BGL/BGL_templates.csv; data/processed/BGL/BGL_event_occurrence_matrix.csv
+
+3.4.3 OpenStack Preprocessing and Structural Limitation (target: 150 words)
+Must cover:
+- Per-instance session construction via [instance: <uuid>] extraction; Drain3 masking reduced templates from 3,983 (unmasked) to 47.
+- The core structural finding: only 4 anomalous instances total, and openstack_abnormal.log (14 May 2017) predates openstack_normal1/2.log (16-17 May 2017) with zero time overlap — making chronological splitting structurally impossible, not just difficult.
+- State this as the justification for the RQ1/RQ2 quantitative exclusion decided in Chapter 3's own design, not an afterthought.
+References: data/processed/OpenStack/OpenStack_event_occurrence_matrix.csv; results/rq3_openstack_qualitative.txt
+
+3.5 Feature Extraction and Window Design (target: 150 words)
+Must cover:
+- Event-occurrence-count feature representation (E1..En columns) as the common representation across all three datasets.
+- State window_size=100 as the BGL baseline while flagging it as an arbitrary-but-tested choice (forward reference to the Section 3.10 ablation).
+References: results/ablation_window_size.csv
+
+3.6 Train, Validation and Test Split Strategy (target: 150 words)
+Must cover:
+- State the 70/15/15 chronological split rule for HDFS/BGL and justify via the no-random-split principle for time-ordered log data.
+- Document the OpenStack exception in full: stratified 4-fold (not 5-fold — capped by the 4-anomaly minimum-class-count constraint in StratifiedKFold) as a documented methodological deviation.
+References: data/processed/{HDFS,BGL}/splits/{train,val,test}.csv; data/processed/OpenStack/splits/full.csv
+
+3.7 Model Selection and Training (target: 130 words)
+Must cover:
+- Justify Logistic Regression, Random Forest, LightGBM as a spectrum from interpretable-linear to complex-ensemble.
+- State the imbalance-handling settings used throughout (class_weight='balanced' for sklearn models, scale_pos_weight for LightGBM) and that raw accuracy was never used as an evaluation criterion.
+References: results/model_results.csv
+
+3.8 Explainability Methods (target: 30 words, parent framing only)
+Must cover:
+- One sentence stating SHAP and LIME were applied to each dataset's best-performing model only (not all three models), to keep the explanation analysis tractable and comparable.
+References: none
+
+3.8.1 SHAP Implementation (target: 120 words)
+Must cover:
+- TreeExplainer on the best model per dataset (HDFS: LightGBM; BGL: Random Forest); state the 200-instance class-stratified sampling strategy and why (full-test-set SHAP on BGL's 987 features x 7,122 rows is intractable).
+- Document the additivity-check failure on BGL's class-weighted Random Forest and the disable-check workaround, with the documented reasoning (class_weight='balanced' breaks TreeExplainer's leaf-count assumption).
+References: results/shap_values/HDFS_shap_values.npy; results/shap_values/BGL_shap_values.npy; results/figures/HDFS_shap_summary.png; results/figures/BGL_shap_summary.png
+
+3.8.2 LIME Implementation (target: 110 words)
+Must cover:
+- LimeTabularExplainer configuration (discretize_continuous=False, num_samples=1000, num_features=all) applied to the same 200-instance sample as SHAP for direct comparability.
+- Note the base-feature-name recovery step needed because LIME's condition strings are not raw feature names.
+References: results/lime_ranking_HDFS.csv; results/lime_ranking_BGL.csv
+
+3.9 Evaluation Protocol (target: 30 words, parent framing only)
+Must cover:
+- One sentence mapping RQ1/RQ2/RQ3 each to a distinct evaluation protocol, previewing 3.9.1-3.9.3.
+References: none
+
+3.9.1 RQ1 Metrics (target: 70 words)
+Must cover:
+- F1, Precision, Recall, AUC-ROC only (never accuracy) — restate why, given class imbalance.
+- Val vs test reporting for HDFS/BGL; cv_mean/cv_std reporting for OpenStack's 4-fold CV.
+References: results/model_results.csv
+
+3.9.2 RQ2 Faithfulness and Consistency (target: 90 words)
+Must cover:
+- Faithfulness via deletion/comprehensiveness test at k=1,2,3,5,10, including the random-ranking control condition.
+- Consistency via Spearman rank correlation between SHAP's and LIME's mean-|value| global feature importances.
+- Note the signed mean_prob_drop interpretation caveat (removing top features can increase P(anomaly) for majority-normal samples).
+References: results/faithfulness_HDFS.csv; results/faithfulness_BGL.csv; results/shap_lime_spearman.csv
+
+3.9.3 RQ3 Actionability Mapping (target: 70 words)
+Must cover:
+- Rule-based keyword categorisation of top-15 SHAP features' template text into 6 operational categories; actionability_coverage = non-Unknown fraction.
+- Note the iterative correction of overly generic keywords during development (e.g. bare "cpu", "deallocate network") as evidence of a validated, not just constructed, rubric.
+References: results/rq3_actionability_HDFS.csv; results/rq3_actionability_BGL.csv; results/rq3_coverage.csv
+
+3.10 Ablation Study Design (target: 120 words)
+Must cover:
+- Window-size ablation (10/20/40/100) rationale: test whether the window_size=100 baseline is a meaningful choice or an arbitrary one.
+- Temporal drift (3-chunk test-set split) and hyperparameter sensitivity (27-combination LightGBM grid) as follow-up robustness checks on the RQ1 BGL finding specifically.
+- SHAP stability across window sizes as the RQ2 robustness check — explanation stability under a preprocessing choice, not just explainer choice.
+References: results/ablation_window_size.csv; results/temporal_drift_bgl.csv; results/hyperparameter_sensitivity.csv; results/shap_stability_window.csv
+
+3.11 Ethical Considerations (target: 80 words)
+Must cover:
+- All datasets are public, anonymised, non-personal system logs (no PII) — state this explicitly as low-risk.
+- Note the general risk of over-trusting automated incident-prediction systems in production (false negatives causing missed real incidents) as the ethical throughline motivating RQ3's actionability question.
+References: none

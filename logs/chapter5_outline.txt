@@ -1,0 +1,59 @@
+CHAPTER 5: DISCUSSION — OUTLINE
+Target total: 1,300-1,500 words (allocations below sum to ~1,500)
+==============================================================
+
+5.1 Introduction (target: 80 words)
+Must cover:
+- State that this chapter interprets Chapter 4's results against the literature reviewed in Chapter 2, organised RQ1 -> RQ2 -> RQ3 -> cross-cutting findings.
+References: none
+
+5.2 RQ1: Model Choice for Cloud Incident Prediction (target: 200 words)
+Must cover:
+- Interpret HDFS's near-perfect scores as evidence model choice barely matters when anomalies map cleanly to distinct templates — the harder question is dataset structure, not algorithm.
+- Interpret BGL's volatility (val->test drop, non-monotonic temporal drift, high hyperparameter sensitivity) as evidence that model choice matters *a lot* under drift, and that RandomForest's more conservative bias generalises better than LightGBM's more aggressive default fitting here.
+- State the OpenStack result reframes "model choice" as moot when the underlying data structure (4 anomalies, disjoint time periods) cannot support any model.
+References: results/model_results.csv; results/temporal_drift_bgl.csv; results/hyperparameter_sensitivity.csv
+
+5.3 RQ2: XAI Method Agreement and Reliability (target: 200 words)
+Must cover:
+- Interpret the HDFS/BGL Spearman gap (0.676 vs 0.113) as evidence for a dimensionality-driven mechanism: LIME's local linear surrogate is more reliable in a low-dimensional, dense feature space and degrades as feature count grows.
+- Interpret the SHAP window-size-stability finding as evidence that explanation reliability is not solely an explainer-choice problem — an upstream preprocessing decision can be just as destabilising.
+- Connect faithfulness results back to the signed mean_prob_drop interpretation, arguing this metric measures something more nuanced than a simple faithful/unfaithful binary.
+References: results/shap_lime_spearman.csv; results/shap_stability_window.csv; results/faithfulness_HDFS.csv; results/faithfulness_BGL.csv
+
+5.4 RQ3: Operational Actionability of Explanations (target: 200 words)
+Must cover:
+- Interpret the counter-intuitive HDFS/BGL actionability-coverage gap (53% vs 93%) alongside the SHAP-LIME agreement gap (0.676 vs 0.113): actionability and cross-method agreement move in opposite directions across these two datasets, so neither property implies the other.
+- Argue BGL's high actionability despite low agreement suggests SHAP's rankings, even if unstable relative to LIME, are individually recognisable to an engineer — a nuance the RQ2 metric alone would miss.
+References: results/rq3_coverage.csv; results/rq3_actionability_HDFS.csv; results/rq3_actionability_BGL.csv
+
+5.5 The OpenStack Sequencing Discovery (target: 180 words)
+Must cover:
+- Foreground the finding that 100% of the anomalous instances' triggered templates categorise as "Unknown" — none are explicit failure messages, all are routine VM lifecycle logs.
+- Argue this is a genuine methodological discovery, not just a limitation: event-count feature representations (used throughout this study and much of the log-anomaly literature) are fundamentally blind to anomalies that manifest as abnormal timing/sequencing rather than abnormal event occurrence.
+References: results/rq3_openstack_qualitative.txt
+
+5.6 Limitations of the Study (target: 200 words)
+Must cover:
+- Benchmark datasets are static and dated (2005-2017) — no live OpenTelemetry validation was performed, a genuine gap relative to the dissertation's own title.
+- SHAP/LIME were run on a 200-instance stratified sample, not the full test set, for tractability — results are representative but not exhaustive.
+- The RQ3 categorisation rubric is keyword-based and manually iterated during development; while corrected for known false positives, it is not independently validated by a second annotator (a threats-to-validity point).
+References: none
+
+5.7 Comparison to Prior Work (target: 180 words)
+Must cover:
+- Compare HDFS/BGL RQ1 results numerically against published LogPai/loglizer benchmark figures cited in Chapter 2.
+- Compare the SHAP-LIME disagreement finding against any prior cross-explainer agreement studies identified in 2.5, noting whether this study's magnitude is consistent or more severe.
+References: results/model_results.csv
+
+5.8 Implications for SRE Practice and OpenTelemetry (target: 180 words)
+Must cover:
+- Practical takeaway: BGL-style high-dimensional log streams need explanation-stability monitoring, not just model-accuracy monitoring, before an alert is trusted.
+- Practical takeaway: an OpenTelemetry-based deployment should track sequencing/timing features explicitly (per 5.5), not rely solely on event-count aggregation.
+- Recommend precision-favoring model configuration for on-call alerting contexts, per the BGL Random Forest result.
+References: results/model_results.csv; results/rq3_openstack_qualitative.txt
+
+5.9 Chapter Summary (target: 80 words)
+Must cover:
+- One-paragraph synthesis of 5.2-5.8 into the single-sentence thesis the Conclusion will restate.
+References: none

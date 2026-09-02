@@ -1,0 +1,50 @@
+CHAPTER 1: INTRODUCTION — OUTLINE
+Target total: 1,300-1,600 words (allocations below sum to ~1,400)
+==============================================================
+
+1.1 Background and Context (target: 300 words)
+Must cover:
+- Cloud/microservice operations generate high-volume operational logs (HDFS, BGL, OpenStack scale: 1.5GB/709MB/61MB raw) that SREs must monitor reactively.
+- OpenTelemetry as the emerging standard for unifying logs/metrics/traces, framing why log-based prediction is a natural entry point for AIOps.
+- The shift from manual log-grepping to ML-based anomaly prediction, and why "black box" prediction alone is operationally insufficient.
+References: none (contextual/motivational — draws on Ch.2 sources)
+
+1.2 Problem Statement (target: 220 words)
+Must cover:
+- ML models can predict incidents from logs, but on-call engineers cannot act on an opaque prediction — trust and actionability are the gap.
+- SHAP/LIME promise explainability, but their reliability (faithfulness, mutual agreement) is rarely tested against each other on the same model/data.
+- Existing log-anomaly literature rarely checks whether explanations survive realistic conditions: temporal drift, high-dimensional feature spaces, extreme class imbalance.
+References: results/model_results.csv (illustrates the performance side of the gap); results/shap_lime_spearman.csv (illustrates the explanation-agreement side)
+
+1.3 Aim and Objectives (target: 150 words)
+Must cover:
+- Aim: to evaluate whether explainable AI (SHAP/LIME) can make cloud incident prediction from logs both accurate and operationally trustworthy.
+- Objectives mapped 1:1 to RQ1 (accuracy/model comparison), RQ2 (faithfulness/consistency of explanations), RQ3 (operational actionability of top-ranked features).
+- Objective to identify dataset-specific limitations (e.g. OpenStack's structural inability to support held-out evaluation) as a methodological contribution, not just a result.
+References: none (statement of intent)
+
+1.4 Research Questions (target: 150 words)
+Must cover:
+- State RQ1, RQ2, RQ3 verbatim as given in the proposal.
+- Briefly justify why the three questions are sequential/dependent (RQ2 and RQ3 only make sense once RQ1 has established which model to explain).
+References: none
+
+1.5 Scope of the Study (target: 200 words)
+Must cover:
+- Three LogPai benchmark datasets (HDFS, BGL, OpenStack) — in-scope; live/production OpenTelemetry telemetry — out of scope (explicitly a proxy study).
+- Three model families (Logistic Regression, Random Forest, LightGBM) and two explainers (SHAP, LIME) — no deep learning models, no other XAI methods (e.g. Anchors, counterfactuals).
+- OpenStack explicitly scoped out of RQ1/RQ2 quantitative evaluation due to only 4 anomalous sessions; retained for RQ3 qualitative analysis only.
+References: results/rq3_coverage.csv (shows OpenStack absent from the quantitative coverage table); results/rq3_openstack_qualitative.txt
+
+1.6 Significance of the Study (target: 250 words)
+Must cover:
+- Practical significance: a concrete, reproducible pipeline an SRE team could adapt for their own OpenTelemetry log streams.
+- Academic significance: quantifies SHAP-LIME agreement degradation with feature-space size (r=0.676 HDFS vs r=0.113 BGL) — a specific, measured claim rather than a general assertion that "XAI methods can disagree."
+- Methodological significance: demonstrates that explanation instability can come from a preprocessing hyperparameter (window size), not just model/explainer choice — a novel angle largely absent from prior log-XAI literature.
+References: results/shap_lime_spearman.csv; results/shap_stability_window.csv
+
+1.7 Structure of the Study (target: 130 words)
+Must cover:
+- One-paragraph roadmap of Chapters 2-6, stating each chapter's core question in one sentence.
+- Note that Chapter 4 additionally reports four follow-up studies (window-size ablation, temporal drift, hyperparameter sensitivity, SHAP stability) that were not part of the original three RQs but strengthen their evidentiary basis.
+References: none

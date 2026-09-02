@@ -41,6 +41,7 @@
 | 05 Aug 2026 | lime verify | AttributeError: module lime has no __version__ | lime does not expose __version__ | Verified with pip show lime — version 0.2.0.1 confirmed |
 | 07 Aug 2026 | 04_explain_rq2.py | SHAP additivity check failure on BGL RF | class_weight=balanced breaks TreeExplainer internal assumptions | Disabled strict additivity check — documented workaround |
 | 07 Aug 2026 | 05_explain_openstack_shap.py | E3 SHAP magnitude pathological (10,632) | LightGBM overfitting to 4 anomaly points with scale_pos_weight=516 | Regularised model with shallower trees and sqrt class weight |
+| 20 Aug 2026 | 13_figure_inventory_check.py | Regenerated BGL SHAP summary plot showed magnitudes up to 5e11 on visual inspection | class_weight='balanced' RandomForest corrupts TreeExplainer's default 'tree_path_dependent' algorithm outright — this is NOT the same as the 07 Aug additivity-check entry above, which incorrectly concluded disabling the check was a harmless workaround. It is not: the underlying SHAP values themselves were numerically wrong (confirmed: up to 1e27 on the window-size ablation models), not just failing a safety check | feature_perturbation='interventional' with an explicit 100-row background sample — confirmed by direct testing to restore correct probability-scale magnitudes and a passing additivity check with no need to disable it. Recomputed every downstream BGL SHAP artifact: shap_values/BGL_shap_values.npy, feature_ranking_BGL.csv, faithfulness_BGL.csv, shap_lime_spearman.csv, rq3_actionability_BGL.csv, rq3_coverage.csv, shap_stability_window.csv (all 4 window-size models), and all associated figures |
 
 ---
 
@@ -56,6 +57,7 @@
 | 06 Aug 2026 | Best model BGL — Random Forest | Highest test Precision (0.97) and best overall test F1 (0.47). High-precision alerts are more operationally trustworthy in SRE context | RQ1 results |
 | 06 Aug 2026 | OpenStack excluded from RQ1/RQ2 quantitative evaluation | Only 4 anomalous sessions — insufficient for held-out evaluation | Documented in Chapter 3 Limitations |
 | 06 Aug 2026 | Dropped Type column from HDFS before training | Prevents direct label leakage into features | Data integrity |
+| 20 Aug 2026 | Standardised on feature_perturbation='interventional' with an explicit background sample for every class_weight='balanced' RandomForest SHAP computation (BGL, all window sizes) | Corrected the previously-reported SHAP-stability Jaccard range from 0.176-0.333 to 0.43-0.667 and the SHAP-LIME Spearman for BGL from r=0.113 to r=0.138 — the direction of the stability finding reverses (BGL's SHAP rankings are moderately stable across window sizes, not highly unstable); the genuine instability this project has found is cross-explainer (SHAP vs LIME) disagreement, not sensitivity to preprocessing window size | Day 16 entry below; results/shap_stability_window.csv, results/shap_lime_spearman.csv |
 
 ---
 
@@ -755,3 +757,41 @@ locked. The next phase is dissertation writing.
 - `src/12_results_inventory.py`
 - `logs/results_inventory.txt`
 - `logs/results_checklist.txt`
+
+---
+
+### Day 15 — 19 August 2026
+
+**Objective:** Structured Outline Generation for Dissertation Chapters 1-6
+
+**Completed:**
+- [x] Generated structured outlines (not full text) for all six chapters
+  against the exact LJMU-required section structure, including nested
+  subsections (3.4.x, 3.8.x, 3.9.x, 4.3.x, 4.8.x)
+- [x] Allocated a target word count to every section and subsection,
+  summing to within each chapter's official word-count band
+- [x] Attached 3-4 content bullets per section plus the specific
+  results CSV/figure each section should cite, grounded in files
+  that actually exist in `results/` rather than generic placeholders
+
+**Key finding today:**
+Distributing word-count targets down to the subsection level (rather
+than just per-chapter) made several structural gaps visible early —
+e.g. Chapter 4's RQ2 section needed room for four follow-up studies
+(window ablation, temporal drift, hyperparameter sensitivity, SHAP
+stability) that go beyond the original three RQs but are now load-bearing
+evidence for the concept-drift and explanation-instability arguments.
+
+**My observation:**
+Writing the outline before the prose forced an explicit accounting of
+which specific number backs which sentence. That discipline paid off
+almost immediately — it is the reason the SHAP-magnitude anomaly caught
+in Day 16 below was caught at all: cross-referencing "which figure proves
+this outline bullet" is what led to actually opening and looking at the
+BGL SHAP summary plot for the first time since it was generated.
+
+**Files produced today:**
+- `logs/chapter1_outline.txt` through `logs/chapter6_outline.txt`
+
+---
+
