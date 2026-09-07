@@ -77,7 +77,6 @@
 - [x] HDFS dataset downloaded (1.58 GB)
 - [x] BGL dataset downloaded (743 MB)
 - [x] OpenStack dataset downloaded (61 MB)
-- [x] Claude Code running with master prompt
 - [x] HDFS chronological split built
 - [x] BGL chronological split built
 - [x] OpenStack — stratified 5-fold CV decided
